@@ -1,6 +1,7 @@
 package sweng.penelope;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,22 +11,40 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import sweng.penelope.entities.Duck;
+import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.DuckRepository;
 
 @Controller
 @RequestMapping(path = "/ducks")
 public class MainController {
+    private Responses responses = new Responses();
+
     @Autowired
     private DuckRepository duckRepository;
+    @Autowired
+    private ApiKeyRepository apiKeyRepository;
 
     @PostMapping(path = "/new") // POST requests handled at /duck/new
-    public @ResponseBody String newDuck(@RequestParam String name, @RequestParam String description) {
-        Duck duck = new Duck();
-        duck.setDescription(description);
-        duck.setName(name);
+    public ResponseEntity<String> newDuck(@RequestParam String name, @RequestParam String description,
+            @RequestParam String apiKey) {
 
-        duckRepository.save(duck);
-        return String.format("New duck \"%s\"(id: %d) with description: \"%s\" stored in the database.%n", name, duck.getId(), description);
+        // Request came from user with valid api key, create the duck
+        if (apiKeyRepository.findById(apiKey).isPresent()) {
+            Duck duck = new Duck();
+            duck.setDescription(description);
+            duck.setName(name);
+
+            duckRepository.save(duck);
+
+            String responseMessage = String.format(
+                    "New duck \"%s\"(id: %d) with description: \"%s\" stored in the database.%n", name,
+                    duck.getId(), description);
+
+            return responses.ok(responseMessage);
+
+        } else // Unauthorised request
+            return responses.unauthorised();
+
     }
 
     @GetMapping(path = "/all") // Get all the ducks
@@ -34,11 +53,15 @@ public class MainController {
     }
 
     @DeleteMapping(path = "/remove")
-    public @ResponseBody String removeDuck(@RequestParam Long id) {
-        if (duckRepository.existsById(id)) {
-            duckRepository.deleteById(id);
-            return String.format("Duck %d deleted.%n", id);
-        }
-        return String.format("Duck %d not found. Nothing to do here...%n", id);
+    public ResponseEntity<String> removeDuck(@RequestParam Long id, @RequestParam String apiKey) {
+        // Request came from user with valid api key, create the duck
+        if (apiKeyRepository.findById(apiKey).isPresent()) {
+            if (duckRepository.existsById(id)) {
+                duckRepository.deleteById(id);
+                return responses.ok(String.format("Duck %d deleted.%n", id));
+            }
+            return responses.notFound(String.format("Duck %d not found. Nothing to do here...%n", id));
+        } else // Unauthorised request
+            return responses.unauthorised();
     }
 }
