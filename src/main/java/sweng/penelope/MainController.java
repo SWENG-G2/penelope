@@ -54,7 +54,7 @@ public class MainController {
 
     @DeleteMapping(path = "/remove")
     public ResponseEntity<String> removeDuck(@RequestParam Long id, @RequestParam String apiKey) {
-        // Request came from user with valid api key, create the duck
+        // Request came from user with valid api key, remove the duck
         if (apiKeyRepository.findById(apiKey).isPresent()) {
             if (duckRepository.existsById(id)) {
                 duckRepository.deleteById(id);

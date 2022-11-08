@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 
 public class Responses {
     /**
-     * Shortend for successful response.
+     * Shorthand for successful response.
      * 
      * @param message The message to display as response body
      * @return ResponseEntity<String>
@@ -15,7 +15,7 @@ public class Responses {
     }
 
     /**
-     * Shortend for response to unauthorised request.
+     * Shorthand for response to unauthorised request.
      * 
      * @return ResponseEntity<String>
      */
@@ -24,7 +24,7 @@ public class Responses {
     }
 
     /**
-     * Shortend for resource not found response.
+     * Shorthand for resource not found response.
      * 
      * @param message The message to display as response body
      * @return ResponseEntity<String>
