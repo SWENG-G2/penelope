@@ -1,5 +1,6 @@
 package sweng.penelope.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -13,5 +14,8 @@ public class ApiKey {
     @Id
     private String key;
 
-    private String ownerName;    
+    private String ownerName;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean admin;
 }

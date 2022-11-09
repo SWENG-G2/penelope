@@ -20,13 +20,14 @@ import sweng.penelope.repositories.ApiKeyRepository;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(Lifecycle.PER_CLASS)
-public class DuckEndpointsTests {
-    private static final String KEY = "1337";
-    private static final String BAD_KEY = "1234";
-    private static final String OWNER = "Odysseus";
-    private static final String TEST_DUCK_NAME = "The testing duck";
-    private static final String TEST_DUCK_DESCRIPTION = "\"Testing is great fun\", said no full-stack developer. Ever.";
-    private ApiKey testApiKey;
+public class CampusEndpointsTests {
+    private static final String ADMIN_KEY = "1337";
+    private static final String ADMIN_OWNER = "Odysseus";
+    private static final String KEY = "1234";
+    private static final String OWNER = "Telemachus";
+    private static final String TEST_CAMPUS_NAME = "New University";
+    private static final String BAD_KEY = "5678";
+    private ApiKey testAdminApiKey, testApiKey;
 
     @Autowired
     private ApiKeyRepository apiKeyRepository;
@@ -35,7 +36,15 @@ public class DuckEndpointsTests {
 
     @BeforeAll
     public void setUp() {
-        // Inject test key
+        // Inject admin test key
+        testAdminApiKey = new ApiKey();
+        testAdminApiKey.setKey(ADMIN_KEY);
+        testAdminApiKey.setOwnerName(ADMIN_OWNER);
+        testAdminApiKey.setAdmin(true);
+
+        apiKeyRepository.save(testAdminApiKey);
+
+        // Inject non admin key
         testApiKey = new ApiKey();
         testApiKey.setKey(KEY);
         testApiKey.setOwnerName(OWNER);
@@ -45,24 +54,26 @@ public class DuckEndpointsTests {
 
     @AfterAll
     public void cleanUp() {
-        // Remove test key
+        // Remove admin test key
+        apiKeyRepository.delete(testAdminApiKey);
+        // Remove non admin test key
         apiKeyRepository.delete(testApiKey);
     }
 
     @Test
-    public void adminCanCreateAndDelete() throws Exception {
+    public void sysadminCanCreateAndDelete() throws Exception {
         MockHttpServletResponse writeResponse = mockMvc.perform(
-                MockMvcRequestBuilders.post("/ducks/new").param("apiKey", KEY).param("name", TEST_DUCK_NAME).param(
-                        "description", TEST_DUCK_DESCRIPTION))
+                MockMvcRequestBuilders.post("/campus/new").param("name", TEST_CAMPUS_NAME).param("apiKey", ADMIN_KEY))
                 .andReturn().getResponse();
 
-        // Get id of duck. Response contains ...(id: %id)
-        String testDuckID = writeResponse.getContentAsString().split(":")[1].split("\\)")[0];
+        // Get id of campus. Response contains ...(id: %id)
+        String testCampusID = writeResponse.getContentAsString().split(":")[1].split("\\)")[0];
+
         // 200 is OK
         assertEquals(200, writeResponse.getStatus());
 
         MockHttpServletResponse deleteResponse = mockMvc.perform(
-                MockMvcRequestBuilders.delete("/ducks/remove").param("apiKey", KEY).param("id", testDuckID))
+                MockMvcRequestBuilders.delete("/campus/remove").param("apiKey", ADMIN_KEY).param("id", testCampusID))
                 .andReturn().getResponse();
 
         // 200 is OK
@@ -72,8 +83,14 @@ public class DuckEndpointsTests {
     @Test
     public void anyoneCannotCreate() throws Exception {
         MockHttpServletResponse writeResponse = mockMvc.perform(
-                MockMvcRequestBuilders.post("/ducks/new").param("apiKey", BAD_KEY).param("name", TEST_DUCK_NAME).param(
-                        "description", TEST_DUCK_DESCRIPTION))
+                MockMvcRequestBuilders.post("/campus/new").param("apiKey", KEY).param("name", TEST_CAMPUS_NAME))
+                .andReturn().getResponse();
+
+        // 401 is UNAUTHORISED
+        assertEquals(401, writeResponse.getStatus());
+
+        writeResponse = mockMvc.perform(
+                MockMvcRequestBuilders.post("/campus/new").param("apiKey", BAD_KEY).param("name", TEST_CAMPUS_NAME))
                 .andReturn().getResponse();
 
         // 401 is UNAUTHORISED
@@ -83,7 +100,14 @@ public class DuckEndpointsTests {
     @Test
     public void anyoneCannotDelete() throws Exception {
         MockHttpServletResponse deleteResponse = mockMvc.perform(
-                MockMvcRequestBuilders.delete("/ducks/remove").param("apiKey", BAD_KEY).param("id", "10")) // random id
+                MockMvcRequestBuilders.delete("/campus/remove").param("apiKey", KEY).param("id", "1")) // random id
+                .andReturn().getResponse();
+
+        // 401 is UNAUTHORISED
+        assertEquals(401, deleteResponse.getStatus());
+
+        deleteResponse = mockMvc.perform(
+                MockMvcRequestBuilders.delete("/campus/remove").param("apiKey", BAD_KEY).param("id", "1"))
                 .andReturn().getResponse();
 
         // 401 is UNAUTHORISED
@@ -91,19 +115,18 @@ public class DuckEndpointsTests {
     }
 
     @Test
-    public void anyoneCanGetListOfDucks() throws Exception {
-        MockHttpServletResponse getResponse = mockMvc.perform(
-                MockMvcRequestBuilders.get("/ducks/all"))
-                .andReturn().getResponse();
+    public void anyoneCanRead() throws Exception {
+        MockHttpServletResponse getResponse = mockMvc.perform(MockMvcRequestBuilders.get("/campus/all")).andReturn()
+                .getResponse();
 
         // 200 is OK
         assertEquals(200, getResponse.getStatus());
     }
 
     @Test
-    public void adminCannotDeleteUnexistingDuck() throws Exception {
+    public void sysadminCannotDeleteUnexistingCampus() throws Exception {
         MockHttpServletResponse deleteResponse = mockMvc.perform(
-                MockMvcRequestBuilders.delete("/ducks/remove").param("apiKey", KEY).param("id", "99")) // random id
+                MockMvcRequestBuilders.delete("/campus/remove").param("apiKey", ADMIN_KEY).param("id", "99")) // random id
                 .andReturn().getResponse();
 
         // 404 is Not Found

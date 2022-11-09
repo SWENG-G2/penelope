@@ -1,4 +1,4 @@
-package sweng.penelope;
+package sweng.penelope.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,13 +10,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import sweng.penelope.Responses;
 import sweng.penelope.entities.Duck;
 import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.DuckRepository;
 
 @Controller
 @RequestMapping(path = "/ducks")
-public class MainController {
+public class DuckController {
     private Responses responses = new Responses();
 
     @Autowired
