@@ -1,5 +1,7 @@
 package sweng.penelope.controllers;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import sweng.penelope.Responses;
+import sweng.penelope.entities.ApiKey;
 import sweng.penelope.entities.Duck;
 import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.DuckRepository;
@@ -29,8 +32,10 @@ public class DuckController {
     public ResponseEntity<String> newDuck(@RequestParam String name, @RequestParam String description,
             @RequestParam String apiKey) {
 
+        Optional<ApiKey> requestKey = apiKeyRepository.findById(apiKey);
+
         // Request came from user with valid api key, create the duck
-        if (apiKeyRepository.findById(apiKey).isPresent()) {
+        if (requestKey.isPresent()) {
             Duck duck = new Duck();
             duck.setDescription(description);
             duck.setName(name);
@@ -38,7 +43,8 @@ public class DuckController {
             duckRepository.save(duck);
 
             String responseMessage = String.format(
-                    "New duck \"%s\"(id: %d) with description: \"%s\" stored in the database.%n", name,
+                    "New duck \"%s\"(id: %d) with description: \"%s\" stored in the database.%n",
+                    name,
                     duck.getId(), description);
 
             return responses.ok(responseMessage);
