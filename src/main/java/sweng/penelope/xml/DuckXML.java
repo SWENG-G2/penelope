@@ -9,8 +9,12 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import lombok.Getter;
+
 public class DuckXML {
+    @Getter
     private Document document;
+
     private Element presentation;
     private Element info;
     private int numSlides = 0;

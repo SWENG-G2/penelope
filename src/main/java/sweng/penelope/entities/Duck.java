@@ -1,8 +1,10 @@
 package sweng.penelope.entities;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,4 +21,6 @@ public class Duck {
     private String imageURL;
     private String description;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Campus campus;
 }
