@@ -29,6 +29,7 @@ import sweng.penelope.entities.Duck;
 import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.CampusRepository;
 import sweng.penelope.repositories.DuckRepository;
+import sweng.penelope.xml.CampusXML;
 import sweng.penelope.xml.DuckXML;
 import sweng.penelope.xml.SlideNotFoundException;
 
@@ -78,9 +79,11 @@ public class DuckController {
                     // Check directory structure exists
                     String baseFolder = environment.getProperty("storage.base-folder");
                     Path penelopeBaseFolder = Paths.get(baseFolder);
-                    Path ducksFolder = Paths.get(baseFolder + "ducks");
+                    Path ducksFolder = Paths.get(baseFolder + String.format("ducks/%s", campus.getName()));
                     if (!Files.exists(penelopeBaseFolder)) {
                         Files.createDirectories(penelopeBaseFolder);
+                    }
+                    if (!Files.exists(ducksFolder)) {
                         Files.createDirectories(ducksFolder);
                     }
 
@@ -92,6 +95,12 @@ public class DuckController {
                     XMLWriter xmlWriter = new XMLWriter(bufferedWriter, format);
                     xmlWriter.write(duckXML.getDocument());
                     xmlWriter.close();
+
+                    // Update Campus xml
+                    CampusXML campusXML = new CampusXML(campus.getName(), authorKey.getOwnerName(), campusId,
+                            environment);
+                    campusXML.addDuck(name, description, duck.getId(), "imageURL");
+                    campusXML.write();
                 } catch (SlideNotFoundException slideNotFoundException) {
                     slideNotFoundException.printStackTrace();
                     return responses.internalServerError("Something went wrong when generating the XML file.\n");
