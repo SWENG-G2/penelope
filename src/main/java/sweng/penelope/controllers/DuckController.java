@@ -133,11 +133,31 @@ public class DuckController {
 
     @DeleteMapping(path = "/remove")
     public ResponseEntity<String> removeDuck(@RequestParam Long id, @RequestParam String apiKey) {
+        Optional<Duck> requestDuck = duckRepository.findById(id);
+        Optional<ApiKey> requestKey = apiKeyRepository.findById(apiKey);
         // Request came from user with valid api key, remove the duck
-        if (apiKeyRepository.findById(apiKey).isPresent()) {
-            if (duckRepository.existsById(id)) {
-                duckRepository.deleteById(id);
-                return responses.ok(String.format("Duck %d deleted.%n", id));
+        if (requestKey.isPresent()) {
+            if (requestDuck.isPresent()) {
+                Duck duck = requestDuck.get();
+                ApiKey authorKey = requestKey.get();
+                Campus campus = duck.getCampus();
+                duckRepository.delete(duck);
+
+                try {
+                    CampusXML campusXML = new CampusXML(campus.getName(), authorKey.getOwnerName(), campus.getId(),
+                            environment);
+                    campusXML.removeDuck(id);
+                    campusXML.write();
+
+                    // Remove duck XML
+                    String baseFolder = environment.getProperty("storage.base-folder");
+                    Path duckPath = Paths.get(baseFolder + String.format("ducks/%s/%d.xml", campus.getName(), id));
+                    Files.deleteIfExists(duckPath);
+                } catch (SlideNotFoundException | IOException exception) {
+                    exception.printStackTrace();
+                    return responses.notFound("Could not remove duck from XML records.\n");
+                }
+                return responses.ok(String.format("Duck %d removed from database and XML records.%n", id));
             }
             return responses.notFound(String.format("Duck %d not found. Nothing to do here...%n", id));
         } else // Unauthorised request

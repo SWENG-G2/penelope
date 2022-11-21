@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -94,6 +95,21 @@ public class CampusXML {
         numSlides++;
 
         info.element("numSlides").setText(Integer.toString(numSlides));
+    }
+
+    public void removeDuck(Long id) throws SlideNotFoundException {
+        Iterator<Element> ducksIterator = presentation.elementIterator("slide");
+        String idString = Long.toString(id);
+        while (ducksIterator.hasNext()) {
+            Element duck = ducksIterator.next();
+
+            if (Objects.equals(duck.attributeValue("title"), idString)) {
+                presentation.remove(duck);
+                return;
+            }
+        }
+
+        throw new SlideNotFoundException(idString);
     }
 
     public void write() throws IOException {
