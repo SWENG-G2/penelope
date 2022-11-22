@@ -19,55 +19,9 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.springframework.core.env.Environment;
 
-import lombok.Getter;
-
-public class CampusXML {
-    private Document document;
-    private Element presentation;
-    private Element info;
-    private int numSlides = 0;
-    private Path campusFilePath;
-
-    @Getter
-    private boolean initialised = false;
-
-    public CampusXML(String name, String author, Long id, Environment environment) {
-        // Check if xml already exists
-        String baseFolder = environment.getProperty("storage.base-folder");
-        Path campusesFolder = Paths.get(baseFolder + "campuses");
-        campusFilePath = Paths.get(baseFolder + String.format("campuses/%d.xml", id));
-
-        try {
-            if (Files.exists(campusFilePath)) {
-                SAXReader saxReader = new SAXReader();
-                saxReader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                document = saxReader.read(campusFilePath.toFile());
-
-                presentation = document.getRootElement();
-                info = presentation.element("info");
-                numSlides = Integer.parseInt(info.elementText("numSlides"));
-            } else {
-                if (!Files.exists(campusesFolder)) {
-                    Files.createDirectories(campusesFolder);
-                }
-                document = DocumentHelper.createDocument();
-                presentation = document.addElement("presentation");
-                info = presentation.addElement("info");
-
-                // Title
-                info.addElement("title").addText(name);
-                // Author
-                info.addElement("author").addText(author);
-                // Date
-                info.addElement("date").addText(new SimpleDateFormat("yyyy-MM-DD").format(new Date()));
-                // numSlides
-                info.addElement("numSlides").addText(Integer.toString(numSlides));
-            }
-            // Great success
-            initialised = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+public class CampusXML extends CommonXML {
+    public CampusXML(Environment environment, XMLConfiguration xmlConfiguration) {
+        super("campus", environment, xmlConfiguration);
     }
 
     public void addDuck(String name, String description, Long id, String imageURL) {
@@ -115,7 +69,7 @@ public class CampusXML {
     public void write() throws IOException {
         // Write campus xml
         OutputFormat format = OutputFormat.createPrettyPrint();
-        BufferedWriter bufferedWriter = Files.newBufferedWriter(campusFilePath,
+        BufferedWriter bufferedWriter = Files.newBufferedWriter(filePath,
                 StandardCharsets.UTF_8);
         XMLWriter xmlWriter = new XMLWriter(bufferedWriter, format);
         xmlWriter.write(document);

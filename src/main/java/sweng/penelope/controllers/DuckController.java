@@ -32,6 +32,7 @@ import sweng.penelope.repositories.DuckRepository;
 import sweng.penelope.xml.CampusXML;
 import sweng.penelope.xml.DuckXML;
 import sweng.penelope.xml.SlideNotFoundException;
+import sweng.penelope.xml.XMLConfiguration;
 
 @Controller
 @RequestMapping(path = "/ducks")
@@ -97,8 +98,10 @@ public class DuckController {
                     xmlWriter.close();
 
                     // Update Campus xml
-                    CampusXML campusXML = new CampusXML(campus.getName(), authorKey.getOwnerName(), campusId,
-                            environment);
+                    XMLConfiguration xmlConfiguration = new XMLConfiguration(authorKey.getOwnerName(), campus.getName(),
+                            campusId);
+                    CampusXML campusXML = new CampusXML(
+                            environment, xmlConfiguration);
                     campusXML.addDuck(name, description, duck.getId(), "imageURL");
                     campusXML.write();
                 } catch (SlideNotFoundException slideNotFoundException) {
@@ -144,8 +147,10 @@ public class DuckController {
                 duckRepository.delete(duck);
 
                 try {
-                    CampusXML campusXML = new CampusXML(campus.getName(), authorKey.getOwnerName(), campus.getId(),
-                            environment);
+                    XMLConfiguration xmlConfiguration = new XMLConfiguration(authorKey.getOwnerName(), campus.getName(),
+                            campus.getId());
+                    CampusXML campusXML = new CampusXML(
+                            environment, xmlConfiguration);
                     campusXML.removeDuck(id);
                     campusXML.write();
 
