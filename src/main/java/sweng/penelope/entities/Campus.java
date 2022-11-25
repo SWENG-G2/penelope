@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,5 +25,6 @@ public class Campus {
     private String name;
 
     @OneToMany(mappedBy = "campus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<Duck> ducks = new HashSet<>();
 }

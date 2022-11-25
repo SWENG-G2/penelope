@@ -6,6 +6,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,5 +24,6 @@ public class Duck {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
     private Campus campus;
 }
