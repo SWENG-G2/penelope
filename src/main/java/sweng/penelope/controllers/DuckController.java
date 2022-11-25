@@ -1,16 +1,11 @@
 package sweng.penelope.controllers;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +28,11 @@ import sweng.penelope.xml.CampusXML;
 import sweng.penelope.xml.DuckXML;
 import sweng.penelope.xml.SlideNotFoundException;
 import sweng.penelope.xml.XMLConfiguration;
+import sweng.penelope.xml.XMLInitialisationException;
 
 @Controller
 @RequestMapping(path = "/ducks")
 public class DuckController {
-    private static final String IMAGE_SLIDE = "imageSlide";
     private Responses responses = new Responses();
 
     @Autowired
@@ -71,45 +66,32 @@ public class DuckController {
 
                 duckRepository.save(duck);
 
+                XMLConfiguration duckXmlConfiguration = new XMLConfiguration(authorKey.getOwnerName(), duck.getName(),
+                        duck.getId());
+
+                Path ducksPath = Paths.get("ducks");
+                Path ducksCampusPath = Paths.get(campus.getName());
+                Path destinationPath = ducksPath.resolve(ducksCampusPath);
+
                 try {
-                    DuckXML duckXML = new DuckXML(duck.getName(), authorKey.getOwnerName());
-                    duckXML.addSlide("1000", "1000", IMAGE_SLIDE);
-                    duckXML.addImage(IMAGE_SLIDE, "imageURL", "800", "800", "100", "100");
-                    duckXML.addAudio(IMAGE_SLIDE, "audioURL", "950", "0");
-
-                    // Check directory structure exists
-                    String baseFolder = environment.getProperty("storage.base-folder");
-                    Path penelopeBaseFolder = Paths.get(baseFolder);
-                    Path ducksFolder = Paths.get(baseFolder + String.format("ducks/%s", campus.getName()));
-                    if (!Files.exists(penelopeBaseFolder)) {
-                        Files.createDirectories(penelopeBaseFolder);
-                    }
-                    if (!Files.exists(ducksFolder)) {
-                        Files.createDirectories(ducksFolder);
-                    }
-
-                    // Write duck xml
-                    String fileName = String.format("%d.xml", duck.getId());
-                    OutputFormat format = OutputFormat.createPrettyPrint();
-                    BufferedWriter bufferedWriter = Files.newBufferedWriter(Paths.get(ducksFolder.toString(), fileName),
-                            StandardCharsets.UTF_8);
-                    XMLWriter xmlWriter = new XMLWriter(bufferedWriter, format);
-                    xmlWriter.write(duckXML.getDocument());
-                    xmlWriter.close();
+                    DuckXML duckXML = new DuckXML(environment, duckXmlConfiguration, destinationPath);
+                    duckXML.addHeroSlide("audioURL", "imageURL");
+                    duckXML.write();
 
                     // Update Campus xml
-                    XMLConfiguration xmlConfiguration = new XMLConfiguration(authorKey.getOwnerName(), campus.getName(),
+                    XMLConfiguration campusXmlConfiguration = new XMLConfiguration(authorKey.getOwnerName(),
+                            campus.getName(),
                             campusId);
                     CampusXML campusXML = new CampusXML(
-                            environment, xmlConfiguration);
+                            environment, campusXmlConfiguration);
                     campusXML.addDuck(name, description, duck.getId(), "imageURL");
                     campusXML.write();
-                } catch (SlideNotFoundException slideNotFoundException) {
-                    slideNotFoundException.printStackTrace();
-                    return responses.internalServerError("Something went wrong when generating the XML file.\n");
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                     return responses.internalServerError("File system error\n");
+                } catch (XMLInitialisationException xmlInitialisationException) {
+                    xmlInitialisationException.printStackTrace();
+                    return responses.internalServerError("XML initialisation error\n");
                 }
 
                 String responseMessage = String.format(
@@ -122,6 +104,7 @@ public class DuckController {
                 return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", campusId));
         } else // Unauthorised request
             return responses.unauthorised();
+
     }
 
     @GetMapping(path = "/all") // Get all the ducks
@@ -156,11 +139,22 @@ public class DuckController {
 
                     // Remove duck XML
                     String baseFolder = environment.getProperty("storage.base-folder");
-                    Path duckPath = Paths.get(baseFolder + String.format("ducks/%s/%d.xml", campus.getName(), id));
-                    Files.deleteIfExists(duckPath);
-                } catch (SlideNotFoundException | IOException exception) {
-                    exception.printStackTrace();
-                    return responses.notFound("Could not remove duck from XML records.\n");
+                    Path basePath = Paths.get(baseFolder);
+                    Path ducksPath = Paths.get("ducks");
+                    Path ducksCampusPath = Paths.get(campus.getName());
+                    Path fileNamePath = Paths.get(String.format("%d.xml", id));
+                    // Absolute path to file
+                    Path filePath = basePath.resolve(ducksPath.resolve(ducksCampusPath.resolve(fileNamePath)));
+                    Files.deleteIfExists(filePath);
+                } catch (SlideNotFoundException slideNotFoundException) {
+                    slideNotFoundException.printStackTrace();
+                    return responses.notFound("Could not find requested duck in XML record.\n");
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                    return responses.internalServerError("File system error\n");
+                } catch (XMLInitialisationException xmlInitialisationException) {
+                    xmlInitialisationException.printStackTrace();
+                    return responses.internalServerError("XML initialisation error\n");
                 }
                 return responses.ok(String.format("Duck %d removed from database and XML records.%n", id));
             }

@@ -1,54 +1,49 @@
 package sweng.penelope.xml;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Objects;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.SAXReader;
-import org.dom4j.io.XMLWriter;
 import org.springframework.core.env.Environment;
 
 public class CampusXML extends CommonXML {
-    public CampusXML(Environment environment, XMLConfiguration xmlConfiguration) {
+    public CampusXML(Environment environment, XMLConfiguration xmlConfiguration) throws XMLInitialisationException {
         super("campus", environment, xmlConfiguration);
     }
 
+    private String formatDescription(String description) {
+        // Display max 50 chars
+        String formattedDescription = description.substring(0, Math.min(description.length(), 50));
+
+        if (description.length() > 50)
+            formattedDescription += "...";
+
+        return formattedDescription;
+    }
+
     public void addDuck(String name, String description, Long id, String imageURL) {
-        Element duckSlide = presentation.addElement("slide").addAttribute("width", "2000")
-                .addAttribute("height", "1000")
+        Element duckSlide = presentation.addElement("slide").addAttribute(WIDTH, "2000")
+                .addAttribute(HEIGHT, "1000")
                 .addAttribute("title", Long.toString(id));
 
         // Title
-        duckSlide.addElement("text").addAttribute("fontName", "def").addAttribute("fontSize", "22")
-                .addAttribute("colour", "#000000").addAttribute("xCoordinate", "700")
-                .addAttribute("yCoordinate", "100")
+        duckSlide.addElement("text").addAttribute(FONT_NAME, "def").addAttribute(FONT_SIZE, "22")
+                .addAttribute(COLOUR, "#000000").addAttribute(X_COORDINATE, "700")
+                .addAttribute(Y_COORDINATE, "100")
                 .addText(name);
 
         // Description
-        duckSlide.addElement("text").addAttribute("fontName", "def").addAttribute("fontSize", "12")
-                .addAttribute("colour", "#000000").addAttribute("xCoordinate", "700")
-                .addAttribute("yCoordinate", "400")
-                .addText(description.substring(0, Math.min(description.length(), 50)) + "..."); // Display max 50 chars
+        duckSlide.addElement("text").addAttribute(FONT_NAME, "def").addAttribute(FONT_SIZE, "12")
+                .addAttribute(COLOUR, "#000000").addAttribute(X_COORDINATE, "700")
+                .addAttribute(Y_COORDINATE, "400")
+                .addText(formatDescription(description));
 
         // Image
-        duckSlide.addElement("image").addAttribute("url", imageURL).addAttribute("width", "500")
-                .addAttribute("heigth", "500").addAttribute("xCoordinate", "100")
-                .addAttribute("yCoordinate", "100");
+        duckSlide.addElement("image").addAttribute("url", imageURL).addAttribute(WIDTH, "500")
+                .addAttribute(HEIGHT, "500").addAttribute(X_COORDINATE, "100")
+                .addAttribute(Y_COORDINATE, "100");
 
-        numSlides++;
-
-        info.element("numSlides").setText(Integer.toString(numSlides));
+        incrementNumSlides();
     }
 
     public void removeDuck(Long id) throws SlideNotFoundException {
@@ -59,20 +54,11 @@ public class CampusXML extends CommonXML {
 
             if (Objects.equals(duck.attributeValue("title"), idString)) {
                 presentation.remove(duck);
+                decrementNumSlides();
                 return;
             }
         }
 
         throw new SlideNotFoundException(idString);
-    }
-
-    public void write() throws IOException {
-        // Write campus xml
-        OutputFormat format = OutputFormat.createPrettyPrint();
-        BufferedWriter bufferedWriter = Files.newBufferedWriter(filePath,
-                StandardCharsets.UTF_8);
-        XMLWriter xmlWriter = new XMLWriter(bufferedWriter, format);
-        xmlWriter.write(document);
-        xmlWriter.close();
     }
 }
