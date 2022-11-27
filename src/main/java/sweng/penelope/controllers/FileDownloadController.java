@@ -1,6 +1,8 @@
 package sweng.penelope.controllers;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +28,7 @@ public class FileDownloadController {
         this.storageService = storageService;
     }
 
-    @GetMapping("/{fileHome}/{fileName:.+}")
-    @ResponseBody
-    public ResponseEntity<Resource> serveXML(@PathVariable String fileHome,
-            @PathVariable String fileName) {
-        Resource file = storageService.loadAsResource(fileHome, fileName);
-
+    private ResponseEntity<Resource> provideResponse(Resource file, String fileName) {
         if (file != null) {
             MediaType mediaType;
 
@@ -54,5 +51,24 @@ public class FileDownloadController {
         }
 
         return ResponseEntity.internalServerError().body(null);
+    }
+
+    @GetMapping("/{fileHome}/{fileName:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveCampusXML(@PathVariable String fileHome,
+            @PathVariable String fileName) {
+        Resource file = storageService.loadAsResource(fileHome, fileName);
+
+        return provideResponse(file, fileName);
+    }
+
+    @GetMapping("/{fileHome}/{fileSubDir}/{fileName:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveBlob(@PathVariable String fileHome, @PathVariable String fileSubDir,
+            @PathVariable String fileName) {
+        Path fileHomePath = Paths.get(fileHome, fileSubDir);
+        Resource file = storageService.loadAsResource(fileHomePath.toString(), fileName);
+
+        return provideResponse(file, fileName);
     }
 }
