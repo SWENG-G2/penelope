@@ -26,5 +26,5 @@ public class Campus {
 
     @OneToMany(mappedBy = "campus", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private Set<Duck> ducks = new HashSet<>();
+    private Set<Bird> ducks = new HashSet<>();
 }
