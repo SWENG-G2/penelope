@@ -17,5 +17,7 @@ public interface StorageService {
 
 	Resource loadAsResource(String fileHome, String fileName);
 
+	Resource loadAsResourceFromDB(boolean isCampus, Long id);
+
 	void deleteAll();
 }

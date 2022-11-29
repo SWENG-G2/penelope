@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import org.dom4j.Element;
 import org.springframework.core.env.Environment;
 
-public class DuckXML extends CommonXML {
+public class BirdXML extends CommonXML {
     private static final String CONTENT_WIDTH = "1920";
     private static final String HERO_SLIDE_HEIGHT = "2200";
     private static final String HERO_IMAGE_BACKGROUND_DIMENSION = "1880";
@@ -16,13 +16,12 @@ public class DuckXML extends CommonXML {
     // Attributes
     private static final String URL = "url";
 
-    private String duckName;
+    private String birdName;
 
-    public DuckXML(Environment environment, XMLConfiguration xmlConfiguration, Path ducksPath)
-            throws XMLInitialisationException {
-        super(ducksPath.toString(), environment, xmlConfiguration);
+    public BirdXML(XMLConfiguration xmlConfiguration) {
+        super(xmlConfiguration);
 
-        duckName = xmlConfiguration.getTitle();
+        birdName = xmlConfiguration.getTitle();
     }
 
     /**
@@ -51,7 +50,7 @@ public class DuckXML extends CommonXML {
         // Title text
         heroSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "20")
                 .addAttribute(COLOUR, TEXT_COLOUR).addAttribute(FONT_NAME, FONT).addAttribute(FONT_SIZE, "22")
-                .addText(duckName);
+                .addText(birdName);
         // Title audio
         heroSlide.addElement("audio").addAttribute(URL, audioURL).addAttribute("loop", "false")
                 .addAttribute(X_COORDINATE, "1880").addAttribute(Y_COORDINATE, "20");

@@ -10,50 +10,36 @@ import org.junit.jupiter.api.Test;
 
 import sweng.penelope.entities.Campus;
 
-class DuckXMLTests {
+class BirdXMLTests {
     private static final String PRESENTATION_TITLE = "The test presentation.";
     private static final String PRESENTATION_AUTHOR = "Calypso";
     private static final String TEST_CAMPUS_NAME = "FortKnox";
     private static final Long ITEM_ID = 69L;
 
-    private DuckXML slideDuckXML() {
+    private BirdXML slideDuckXML() {
         // Dummy configuration
         XMLConfiguration xmlConfiguration = new XMLConfiguration(PRESENTATION_AUTHOR, PRESENTATION_TITLE, ITEM_ID);
-        // Dummy environment
-        TestEnvironment testEnvironment = new TestEnvironment();
-        // assertNotEquals(null, null);
+
         // Dummy campus
         Campus campus = new Campus();
         campus.setName(TEST_CAMPUS_NAME);
-        // Dummy path
-        Path ducksPath = Paths.get("ducks");
-        Path ducksCampusPath = Paths.get(campus.getName());
-        Path destinationPath = ducksPath.resolve(ducksCampusPath);
 
-        DuckXML duckXML = null;
+
+        BirdXML birdXML = null;
         try {
-            duckXML = new DuckXML(testEnvironment, xmlConfiguration, destinationPath);
-            duckXML.addHeroSlide("audioURL", "imageURL");
+            birdXML = new BirdXML(xmlConfiguration);
+            birdXML.addHeroSlide("audioURL", "imageURL");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return duckXML;
+        return birdXML;
     }
 
     @Test
     void canCreateXML() {
-        DuckXML duckXML = slideDuckXML();
+        BirdXML birdXML = slideDuckXML();
 
-        assertNotEquals(null, duckXML);
-    }
-
-    @Test
-    void canWriteXML() {
-        DuckXML duckXML = slideDuckXML();
-
-        assertDoesNotThrow(() -> {
-            duckXML.write();
-        });
+        assertNotEquals(null, birdXML);
     }
 }

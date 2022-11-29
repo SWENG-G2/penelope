@@ -4,11 +4,10 @@ import java.util.Iterator;
 import java.util.Objects;
 
 import org.dom4j.Element;
-import org.springframework.core.env.Environment;
 
 public class CampusXML extends CommonXML {
-    public CampusXML(Environment environment, XMLConfiguration xmlConfiguration) throws XMLInitialisationException {
-        super("campus", environment, xmlConfiguration);
+    public CampusXML(XMLConfiguration xmlConfiguration) {
+        super(xmlConfiguration);
     }
 
     private String formatDescription(String description) {

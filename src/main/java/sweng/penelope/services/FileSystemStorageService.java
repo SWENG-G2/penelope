@@ -5,19 +5,30 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import sweng.penelope.entities.Bird;
+import sweng.penelope.repositories.BirdRepository;
+import sweng.penelope.xml.BirdXML;
+import sweng.penelope.xml.CommonXML;
+import sweng.penelope.xml.XMLConfiguration;
+
 @Service
 public class FileSystemStorageService implements StorageService {
 
     private final String baseString;
+
+    @Autowired
+    private BirdRepository birdRepository;
 
     @Autowired
     public FileSystemStorageService(Environment environment) {
@@ -67,6 +78,35 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public void deleteAll() {
         // Don't do this
+    }
+
+    private BirdXML getBird(Long id) {
+        BirdXML birdXML = null;
+
+        Optional<Bird> requestBird = birdRepository.findById(id);
+        if (requestBird.isPresent()) {
+            Bird bird = requestBird.get();
+            XMLConfiguration xmlConfiguration = new XMLConfiguration(bird.getAuthor(), bird.getName(), id);
+            birdXML = new BirdXML(xmlConfiguration);
+
+            birdXML.addHeroSlide(bird.getSoundURL(), bird.getHeroImageURL());
+        }
+
+        return birdXML;
+    }
+
+    @Override
+    public Resource loadAsResourceFromDB(boolean isCampus, Long id) {
+        CommonXML xml = null;
+        if (!isCampus) xml = getBird(id);
+
+        if (xml != null) {
+            byte[] bytesArray = xml.getBytes();
+            if (bytesArray != null) {
+                return new ByteArrayResource(bytesArray);
+            }
+        }
+        return null;
     }
 
 }

@@ -26,7 +26,7 @@ import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.CampusRepository;
 import sweng.penelope.repositories.BirdRepository;
 import sweng.penelope.xml.CampusXML;
-import sweng.penelope.xml.DuckXML;
+import sweng.penelope.xml.BirdXML;
 import sweng.penelope.xml.SlideNotFoundException;
 import sweng.penelope.xml.XMLConfiguration;
 import sweng.penelope.xml.XMLInitialisationException;

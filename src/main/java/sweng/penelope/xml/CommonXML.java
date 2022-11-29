@@ -1,7 +1,9 @@
 package sweng.penelope.xml;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,9 +22,6 @@ import org.springframework.core.env.Environment;
 import org.xml.sax.SAXException;
 
 public class CommonXML {
-    protected boolean folderExists = false;
-    protected Path folderPath;
-    protected Path filePath;
     protected Document document;
     protected Element presentation;
     protected Element info;
@@ -39,30 +38,10 @@ public class CommonXML {
 
     private XMLConfiguration xmlConfiguration;
 
-    protected CommonXML(String folderName, Environment environment, XMLConfiguration xmlConfiguration)
-            throws XMLInitialisationException {
-        // Check directory structure
-        String baseFolder = environment.getProperty("storage.base-folder");
-        Path basePath = Paths.get(baseFolder);
-        Path folder = Paths.get(folderName);
-        folderPath = basePath.resolve(folder);
-        filePath = folderPath.resolve(String.format("%d.xml", xmlConfiguration.getItemId()));
-
+    protected CommonXML(XMLConfiguration xmlConfiguration) {
         this.xmlConfiguration = xmlConfiguration;
 
-        try {
-            if (!Files.exists(folderPath))
-                Files.createDirectories(folderPath);
-
-            if (!Files.exists(filePath))
-                createDocument();
-            else
-                loadDocument();
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            throw new XMLInitialisationException(exception.getCause().toString(), xmlConfiguration.getTitle());
-        }
+        createDocument();
     }
 
     protected String numSlidesString() {
@@ -84,24 +63,21 @@ public class CommonXML {
         info.addElement("numSlides").addText(numSlidesString());
     }
 
-    private void loadDocument() throws SAXException, DocumentException {
-        SAXReader saxReader = new SAXReader();
-        saxReader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        document = saxReader.read(filePath.toFile());
-
-        presentation = document.getRootElement();
-        info = presentation.element("info");
-        numSlides = Integer.parseInt(info.elementText("numSlides"));
-    }
-
-    public void write() throws IOException {
-        // Write campus xml
+    public byte[] getBytes() {
         OutputFormat format = OutputFormat.createPrettyPrint();
-        BufferedWriter bufferedWriter = Files.newBufferedWriter(filePath,
-                StandardCharsets.UTF_8);
-        XMLWriter xmlWriter = new XMLWriter(bufferedWriter, format);
-        xmlWriter.write(document);
-        xmlWriter.close();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        XMLWriter xmlWriter;
+        try {
+            xmlWriter = new XMLWriter(byteArrayOutputStream, format);
+            xmlWriter.write(document);
+            xmlWriter.close();
+
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     protected void incrementNumSlides() {

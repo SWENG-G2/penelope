@@ -55,7 +55,7 @@ public class FileDownloadController {
 
     @GetMapping("/{fileHome}/{fileName:.+}")
     @ResponseBody
-    public ResponseEntity<Resource> serveCampusXML(@PathVariable String fileHome,
+    public ResponseEntity<Resource> serveCampusXMLOld(@PathVariable String fileHome,
             @PathVariable String fileName) {
         Resource file = storageService.loadAsResource(fileHome, fileName);
 
@@ -70,5 +70,19 @@ public class FileDownloadController {
         Resource file = storageService.loadAsResource(fileHomePath.toString(), fileName);
 
         return provideResponse(file, fileName);
+    }
+
+    @GetMapping(path = "/bird/{birdId}")
+    public ResponseEntity<Resource> serveCampusXML(@PathVariable Long birdId) {
+        Resource resource = storageService.loadAsResourceFromDB(false, birdId);
+
+        if (resource != null) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_XML)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline") // inline = display as response body
+                    .body(resource);
+        }
+
+        return ResponseEntity.internalServerError().body(null);
     }
 }
