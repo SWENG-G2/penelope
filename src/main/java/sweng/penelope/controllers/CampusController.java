@@ -19,7 +19,7 @@ import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.CampusRepository;
 
 @Controller
-@RequestMapping(path = "/campus")
+@RequestMapping(path = "/api/campus")
 public class CampusController {
     private Responses responses = new Responses();
 

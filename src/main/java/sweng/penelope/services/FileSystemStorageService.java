@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +111,7 @@ public class FileSystemStorageService implements StorageService {
             campusXML = new CampusXML(xmlConfiguration);
 
             Iterator<Bird> birdsIterator = campus.getBirds().iterator();
-            while(birdsIterator.hasNext()) {
+            while (birdsIterator.hasNext()) {
                 Bird bird = birdsIterator.next();
 
                 campusXML.addBird(bird.getName(), bird.getAboutMe(), bird.getId(), bird.getHeroImageURL());
@@ -125,8 +124,10 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public Resource loadAsResourceFromDB(boolean isCampus, Long id) {
         CommonXML xml = null;
-        if (isCampus) xml = getCampus(id);
-        else xml = getBird(id);
+        if (isCampus)
+            xml = getCampus(id);
+        else
+            xml = getBird(id);
 
         if (xml != null) {
             byte[] bytesArray = xml.getBytes();
