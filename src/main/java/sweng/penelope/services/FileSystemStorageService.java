@@ -5,7 +5,9 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import sweng.penelope.entities.Bird;
+import sweng.penelope.entities.Campus;
 import sweng.penelope.repositories.BirdRepository;
+import sweng.penelope.repositories.CampusRepository;
 import sweng.penelope.xml.BirdXML;
+import sweng.penelope.xml.CampusXML;
 import sweng.penelope.xml.CommonXML;
 import sweng.penelope.xml.XMLConfiguration;
 
@@ -29,6 +34,8 @@ public class FileSystemStorageService implements StorageService {
 
     @Autowired
     private BirdRepository birdRepository;
+    @Autowired
+    private CampusRepository campusRepository;
 
     @Autowired
     public FileSystemStorageService(Environment environment) {
@@ -95,10 +102,31 @@ public class FileSystemStorageService implements StorageService {
         return birdXML;
     }
 
+    private CampusXML getCampus(Long id) {
+        CampusXML campusXML = null;
+
+        Optional<Campus> requestCampus = campusRepository.findById(id);
+        if (requestCampus.isPresent()) {
+            Campus campus = requestCampus.get();
+            XMLConfiguration xmlConfiguration = new XMLConfiguration(campus.getAuthor(), campus.getName(), id);
+            campusXML = new CampusXML(xmlConfiguration);
+
+            Iterator<Bird> birdsIterator = campus.getBirds().iterator();
+            while(birdsIterator.hasNext()) {
+                Bird bird = birdsIterator.next();
+
+                campusXML.addBird(bird.getName(), bird.getAboutMe(), bird.getId(), bird.getHeroImageURL());
+            }
+        }
+
+        return campusXML;
+    }
+
     @Override
     public Resource loadAsResourceFromDB(boolean isCampus, Long id) {
         CommonXML xml = null;
-        if (!isCampus) xml = getBird(id);
+        if (isCampus) xml = getCampus(id);
+        else xml = getBird(id);
 
         if (xml != null) {
             byte[] bytesArray = xml.getBytes();

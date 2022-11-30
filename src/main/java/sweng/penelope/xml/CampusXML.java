@@ -20,7 +20,7 @@ public class CampusXML extends CommonXML {
         return formattedDescription;
     }
 
-    public void addDuck(String name, String description, Long id, String imageURL) {
+    public void addBird(String name, String description, Long id, String imageURL) {
         Element duckSlide = presentation.addElement("slide").addAttribute(WIDTH, "2000")
                 .addAttribute(HEIGHT, "1000")
                 .addAttribute("title", Long.toString(id));
@@ -43,21 +43,5 @@ public class CampusXML extends CommonXML {
                 .addAttribute(Y_COORDINATE, "100");
 
         incrementNumSlides();
-    }
-
-    public void removeDuck(Long id) throws SlideNotFoundException {
-        Iterator<Element> ducksIterator = presentation.elementIterator("slide");
-        String idString = Long.toString(id);
-        while (ducksIterator.hasNext()) {
-            Element duck = ducksIterator.next();
-
-            if (Objects.equals(duck.attributeValue("title"), idString)) {
-                presentation.remove(duck);
-                decrementNumSlides();
-                return;
-            }
-        }
-
-        throw new SlideNotFoundException(idString);
     }
 }

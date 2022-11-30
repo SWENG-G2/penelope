@@ -72,10 +72,7 @@ public class FileDownloadController {
         return provideResponse(file, fileName);
     }
 
-    @GetMapping(path = "/bird/{birdId}")
-    public ResponseEntity<Resource> serveCampusXML(@PathVariable Long birdId) {
-        Resource resource = storageService.loadAsResourceFromDB(false, birdId);
-
+    private ResponseEntity<Resource> provideXMLResponse(Resource resource) {
         if (resource != null) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_XML)
@@ -84,5 +81,19 @@ public class FileDownloadController {
         }
 
         return ResponseEntity.internalServerError().body(null);
+    }
+
+    @GetMapping(path = "/bird/{birdId}")
+    public ResponseEntity<Resource> serveBirdXML(@PathVariable Long birdId) {
+        Resource resource = storageService.loadAsResourceFromDB(false, birdId);
+
+        return provideXMLResponse(resource);
+    }
+
+    @GetMapping(path = "/campus/{campusId}")
+    public ResponseEntity<Resource> serveCampusXML(@PathVariable Long campusId) {
+        Resource resource = storageService.loadAsResourceFromDB(true, campusId);
+
+        return provideXMLResponse(resource);
     }
 }

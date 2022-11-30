@@ -1,5 +1,6 @@
 package sweng.penelope.entities;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,6 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -24,7 +28,13 @@ public class Campus {
 
     private String name;
 
+    // Metadata
+    private String author;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @UpdateTimestamp
+    private Date date;
+
     @OneToMany(mappedBy = "campus", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private Set<Bird> ducks = new HashSet<>();
+    private Set<Bird> birds = new HashSet<>();
 }

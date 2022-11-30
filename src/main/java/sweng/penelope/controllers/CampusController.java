@@ -30,12 +30,14 @@ public class CampusController {
 
     @PostMapping(path = "/new")
     public ResponseEntity<String> newCampus(@RequestParam String name, @RequestParam String apiKey) {
-        Optional<ApiKey> receivedApiKey = apiKeyRepository.findById(apiKey);
+        Optional<ApiKey> requestKey = apiKeyRepository.findById(apiKey);
 
         // Request came from sysadmin, create campus
-        if (receivedApiKey.isPresent() && Boolean.TRUE.equals(receivedApiKey.get().getAdmin())) {
+        if (requestKey.isPresent() && Boolean.TRUE.equals(requestKey.get().getAdmin())) {
+            ApiKey authorKey = requestKey.get();
             Campus campus = new Campus();
             campus.setName(name);
+            campus.setAuthor(authorKey.getOwnerName());
 
             campusRepository.save(campus);
 
