@@ -22,7 +22,7 @@ import sweng.penelope.repositories.BirdRepository;
 import sweng.penelope.repositories.CampusRepository;
 
 @Controller
-@RequestMapping(path = "/api/ducks")
+@RequestMapping(path = "/api/birds")
 public class BirdController {
     private Responses responses = new Responses();
 

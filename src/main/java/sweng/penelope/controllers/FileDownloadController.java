@@ -1,6 +1,7 @@
 package sweng.penelope.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -8,12 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import sweng.penelope.services.StorageService;
 
 @Controller
-@RequestMapping(path = "/")
 public class FileDownloadController {
     private final StorageService storageService;
 
@@ -34,6 +33,7 @@ public class FileDownloadController {
     }
 
     @GetMapping(path = "/bird/{birdId}")
+    @Cacheable("birds")
     public ResponseEntity<Resource> serveBirdXML(@PathVariable Long birdId) {
         Resource resource = storageService.loadAsResourceFromDB(false, birdId);
 
@@ -41,6 +41,7 @@ public class FileDownloadController {
     }
 
     @GetMapping(path = "/campus/{campusId}")
+    @Cacheable("campuses")
     public ResponseEntity<Resource> serveCampusXML(@PathVariable Long campusId) {
         Resource resource = storageService.loadAsResourceFromDB(true, campusId);
 
