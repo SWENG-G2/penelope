@@ -33,4 +33,13 @@ public class Responses {
         return new ResponseEntity<>(message,
                 HttpStatus.NOT_FOUND);
     }
+
+    /**
+     * Shorthand for internal server error response.
+     * @param message The message to display as response body
+     * @return ResponseEntity<String>
+     */
+    public ResponseEntity<String> internalServerError(String message) {
+        return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

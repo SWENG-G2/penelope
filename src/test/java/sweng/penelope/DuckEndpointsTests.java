@@ -15,7 +15,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import sweng.penelope.entities.ApiKey;
+import sweng.penelope.entities.Campus;
 import sweng.penelope.repositories.ApiKeyRepository;
+import sweng.penelope.repositories.CampusRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -26,10 +28,14 @@ public class DuckEndpointsTests {
     private static final String OWNER = "Odysseus";
     private static final String TEST_DUCK_NAME = "The testing duck";
     private static final String TEST_DUCK_DESCRIPTION = "\"Testing is great fun\", said no full-stack developer. Ever.";
+    private static final String TEST_CAMPUS_NAME = "The testing campus";
     private ApiKey testApiKey;
+    private Campus testCampus;
 
     @Autowired
     private ApiKeyRepository apiKeyRepository;
+    @Autowired
+    private CampusRepository campusRepository;
     @Autowired
     private MockMvc mockMvc;
 
@@ -41,25 +47,35 @@ public class DuckEndpointsTests {
         testApiKey.setOwnerName(OWNER);
 
         apiKeyRepository.save(testApiKey);
+
+        // Inject test campus
+        testCampus = new Campus();
+        testCampus.setName(TEST_CAMPUS_NAME);
+
+        campusRepository.save(testCampus);
     }
 
     @AfterAll
     public void cleanUp() {
         // Remove test key
         apiKeyRepository.delete(testApiKey);
+
+        // Remove test campus
+        campusRepository.delete(testCampus);
     }
 
     @Test
     public void adminCanCreateAndDelete() throws Exception {
         MockHttpServletResponse writeResponse = mockMvc.perform(
                 MockMvcRequestBuilders.post("/ducks/new").param("apiKey", KEY).param("name", TEST_DUCK_NAME).param(
-                        "description", TEST_DUCK_DESCRIPTION))
+                        "description", TEST_DUCK_DESCRIPTION).param("campusId", Long.toString(testCampus.getId())))
                 .andReturn().getResponse();
+
+        // 200 is OK
+        assertEquals(200, writeResponse.getStatus());
 
         // Get id of duck. Response contains ...(id: %id)
         String testDuckID = writeResponse.getContentAsString().split(":")[1].split("\\)")[0];
-        // 200 is OK
-        assertEquals(200, writeResponse.getStatus());
 
         MockHttpServletResponse deleteResponse = mockMvc.perform(
                 MockMvcRequestBuilders.delete("/ducks/remove").param("apiKey", KEY).param("id", testDuckID))
@@ -73,7 +89,7 @@ public class DuckEndpointsTests {
     public void anyoneCannotCreate() throws Exception {
         MockHttpServletResponse writeResponse = mockMvc.perform(
                 MockMvcRequestBuilders.post("/ducks/new").param("apiKey", BAD_KEY).param("name", TEST_DUCK_NAME).param(
-                        "description", TEST_DUCK_DESCRIPTION))
+                        "description", TEST_DUCK_DESCRIPTION).param("campusId", Long.toString(testCampus.getId())))
                 .andReturn().getResponse();
 
         // 401 is UNAUTHORISED

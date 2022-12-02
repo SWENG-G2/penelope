@@ -11,6 +11,6 @@ public class TestUtils {
     }
 
     public static void testEnd(String testName) {
-        println("---- " + testName + " End ----%n%n");
+        println("---- " + testName + " End ----");
     }
 }
