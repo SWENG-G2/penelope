@@ -44,17 +44,33 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public void init() {
         Path basePath = Paths.get(baseString);
+        Path videoPath = basePath.resolve("video");
+        Path audioPath = basePath.resolve("audio");
+        Path imagePath = basePath.resolve("image");
         try {
             if (!Files.exists(basePath))
                 Files.createDirectories(basePath);
+            if (!Files.exists(videoPath))
+                Files.createDirectories(videoPath);
+            if (!Files.exists(audioPath))
+                Files.createDirectories(audioPath);
+            if (!Files.exists(imagePath))
+                Files.createDirectories(imagePath);
         } catch (IOException ioException) {
-            throw new StorageException("Could not create base path", ioException);
+            throw new StorageException("Could not create base directories structure", ioException);
         }
     }
 
     @Override
-    public void store(MultipartFile file) {
-        // TODO: actually store
+    public boolean store(String type, MultipartFile file) {
+        Path destinationPath = Paths.get(baseString, type, file.getOriginalFilename());
+        try {
+            file.transferTo(destinationPath);
+            return true;
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+            return false;
+        }
     }
 
     @Override
