@@ -35,6 +35,14 @@ public class CommonXML {
     protected static final String HEIGHT = "height";
     protected static final String FONT_NAME = "fontName";
     protected static final String FONT_SIZE = "fontSize";
+    protected static final String FROM_X = "fromX";
+    protected static final String FROM_Y = "fromY";
+    protected static final String TO_X = "toX";
+    protected static final String TO_Y = "toY";
+
+    // Values
+    protected static final String DARK_GRAY = "#8A8178FF";
+
 
     private XMLConfiguration xmlConfiguration;
 

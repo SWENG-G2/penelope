@@ -23,6 +23,7 @@ import sweng.penelope.repositories.BirdRepository;
 import sweng.penelope.repositories.CampusRepository;
 import sweng.penelope.xml.BirdXML;
 import sweng.penelope.xml.CampusXML;
+import sweng.penelope.xml.CampusesListXML;
 import sweng.penelope.xml.CommonXML;
 import sweng.penelope.xml.XMLConfiguration;
 
@@ -137,13 +138,28 @@ public class FileSystemStorageService implements StorageService {
         return campusXML;
     }
 
+    private CampusesListXML getCampusesList() {
+        XMLConfiguration xmlConfiguration = new XMLConfiguration("The Penelope Team", "Campuses list", -1L);
+        CampusesListXML campusesListXML = new CampusesListXML(xmlConfiguration);
+        Iterator<Campus> campusIterator = campusRepository.findAll().iterator();
+
+        while(campusIterator.hasNext()) {
+            Campus campus = campusIterator.next();
+            campusesListXML.addCampus(campus.getName(), campus.getId());
+        }
+
+        return campusesListXML;
+    }
+
     @Override
-    public Resource loadAsResourceFromDB(boolean isCampus, Long id) {
+    public Resource loadAsResourceFromDB(String type, Long id) {
         CommonXML xml = null;
-        if (isCampus)
+        if (type.equals("campus"))
             xml = getCampus(id);
-        else
+        else if (type.equals("bird"))
             xml = getBird(id);
+        else
+            xml = getCampusesList();
 
         if (xml != null) {
             byte[] bytesArray = xml.getBytes();

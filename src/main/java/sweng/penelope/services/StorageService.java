@@ -6,6 +6,8 @@ import java.util.stream.Stream;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import sweng.penelope.xml.CommonXML;
+
 public interface StorageService {
 	void init();
 
@@ -17,7 +19,7 @@ public interface StorageService {
 
 	Resource loadAsResource(String fileHome, String fileName);
 
-	Resource loadAsResourceFromDB(boolean isCampus, Long id);
+	Resource loadAsResourceFromDB(String type, Long id);
 
 	void deleteAll();
 }
