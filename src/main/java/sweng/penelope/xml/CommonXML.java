@@ -42,7 +42,7 @@ public class CommonXML {
 
     // Values
     protected static final String DARK_GRAY = "#8A8178FF";
-
+    protected static final String BLACK = "#00000000";
 
     private XMLConfiguration xmlConfiguration;
 
@@ -58,7 +58,8 @@ public class CommonXML {
 
     private void createDocument() {
         document = DocumentHelper.createDocument();
-        presentation = document.addElement("presentation");
+        presentation = document.addElement("presentation", "urn:SWENG").addNamespace("SWENG",
+                "https://raw.githubusercontent.com/SWENG-G2/xml_standard/proposal-1/standard.xsd");
         info = presentation.addElement("info");
 
         // Title
@@ -66,7 +67,7 @@ public class CommonXML {
         // Author
         info.addElement("author").addText(xmlConfiguration.getAuthor());
         // Date
-        info.addElement("date").addText(new SimpleDateFormat("yyyy-MM-DD").format(new Date()));
+        info.addElement("date").addText(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
         // numSlides
         info.addElement("numSlides").addText(numSlidesString());
     }
