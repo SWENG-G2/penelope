@@ -14,13 +14,13 @@ public class CampusesListXML extends CommonXML {
 
         // Campus Name
         campusSlide.addElement("text").addAttribute(FONT_NAME, "def").addAttribute(FONT_SIZE, FONT_SIZE_TITLE)
-                .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "20")
-                .addAttribute(Y_COORDINATE, "100")
+                .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "100")
+                .addAttribute(Y_COORDINATE, "150")
                 .addText(name);
 
         // Bottom border
-        campusSlide.addElement("line").addAttribute("thickness", "10")
-                .addAttribute(FROM_X, "200").addAttribute(FROM_Y, "400").addAttribute(TO_X, "1720")
+        campusSlide.addElement("line").addAttribute("thickness", "5")
+                .addAttribute(FROM_X, "100").addAttribute(FROM_Y, "400").addAttribute(TO_X, "1820")
                 .addAttribute(TO_Y, "400")
                 .addAttribute(COLOUR, DARK_GRAY);
 
