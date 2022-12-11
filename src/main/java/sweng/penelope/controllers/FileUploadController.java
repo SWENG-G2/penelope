@@ -1,5 +1,6 @@
 package sweng.penelope.controllers;
 
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +36,12 @@ public class FileUploadController {
             @RequestParam String apiKey) {
         Optional<ApiKey> requestKey = apiKeyRepository.findById(apiKey);
         if (requestKey.isPresent()) {
-            if (type.equals("audio") || type.equals("video") || type.equals("image")) {
-                if (file != null && !file.getOriginalFilename().contains("..")) {
+            if ((type.equals("audio") || type.equals("video") || type.equals("image")) && file != null) {
+                String originalfileName = file.getOriginalFilename();
+                if (originalfileName != null && !originalfileName.contains("..")) {
+                    String fileName = Paths.get(originalfileName).getFileName().toString();
                     if (storageService.store(type, file))
-                        return ResponseEntity.ok().body(String.format("%s stored.%n", file.getOriginalFilename()));
+                        return ResponseEntity.ok().body(String.format("/%s/%s", type, fileName));
                     else
                         return ResponseEntity.internalServerError().body("Could not store file.");
                 }

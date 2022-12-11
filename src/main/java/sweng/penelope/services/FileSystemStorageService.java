@@ -81,13 +81,13 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Path load(String fileHome, String fileName) {
-        return Paths.get(baseString, fileHome, fileName);
+    public Path load(String type, String fileName) {
+        return Paths.get(baseString, type, fileName);
     }
 
     @Override
-    public Resource loadAsResource(String fileHome, String filename) {
-        Path filePath = load(fileHome, filename);
+    public Resource loadAsResource(String type, String filename) {
+        Path filePath = load(type, filename);
         try {
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists() && resource.isReadable())
@@ -143,7 +143,7 @@ public class FileSystemStorageService implements StorageService {
         CampusesListXML campusesListXML = new CampusesListXML(xmlConfiguration);
         Iterator<Campus> campusIterator = campusRepository.findAll().iterator();
 
-        while(campusIterator.hasNext()) {
+        while (campusIterator.hasNext()) {
             Campus campus = campusIterator.next();
             campusesListXML.addCampus(campus.getName(), campus.getId());
         }
