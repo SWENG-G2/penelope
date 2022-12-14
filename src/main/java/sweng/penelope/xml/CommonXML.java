@@ -32,8 +32,11 @@ public class CommonXML {
 
     // Values
     protected static final String DARK_GRAY = "#8A8178FF";
+    protected static final String LIGHT_GRAY = "#DFEBEBFF";
     protected static final String BLACK = "#000000FF";
     protected static final String FONT_SIZE_TITLE = "32";
+    protected static final String FONT_SIZE_TITLE_SM = "28";
+    protected static final String FONT_SIZE_BODY = "20";
 
     private XMLConfiguration xmlConfiguration;
 

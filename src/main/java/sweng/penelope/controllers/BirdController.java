@@ -119,11 +119,6 @@ public class BirdController {
         return birdRepository.findAll();
     }
 
-    @GetMapping(path = "/campus")
-    public ResponseEntity<String> getDucksListByCampus(@RequestParam Long campusId) {
-        return responses.ok("");
-    }
-
     @DeleteMapping(path = "/remove")
     public ResponseEntity<String> removeDuck(@RequestParam Long id, @RequestParam String apiKey) {
         Optional<Bird> requestDuck = birdRepository.findById(id);
