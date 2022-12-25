@@ -8,6 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.UpdateTimestamp;
@@ -37,4 +38,7 @@ public class Campus {
     @OneToMany(mappedBy = "campus", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Bird> birds = new HashSet<>();
+
+    @ManyToMany(mappedBy = "campuses", cascade = CascadeType.ALL)
+    private Set<ApiKey> apiKeys = new HashSet<>();
 }

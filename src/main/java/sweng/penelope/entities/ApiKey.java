@@ -1,8 +1,12 @@
 package sweng.penelope.entities;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,4 +22,7 @@ public class ApiKey {
 
     @Column(columnDefinition = "boolean default false")
     private Boolean admin;
+
+    @ManyToMany
+    private Set<Campus> campuses = new HashSet<>();
 }

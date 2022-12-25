@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,12 +34,12 @@ public class BirdController {
     @Autowired
     private CampusRepository campusRepository;
 
-    @PostMapping(path = "/new")
+    @PostMapping(path = "{campusId}/new")
     public ResponseEntity<String> newDuck(@RequestParam String name, @RequestParam String heroImageURL,
             @RequestParam String soundURL,
             @RequestParam String aboutMe, @RequestParam String aboutMeVideoURL, @RequestParam String location,
             @RequestParam String locationImageURL, @RequestParam String diet, @RequestParam String dietImageURL,
-            @RequestParam Long campusId,
+            @PathVariable Long campusId,
             @RequestParam String apiKey) {
 
         Optional<ApiKey> requestKey = apiKeyRepository.findById(apiKey);
@@ -63,7 +64,7 @@ public class BirdController {
             return responses.unauthorised();
     }
 
-    @PatchMapping(path = "/edit")
+    @PatchMapping(path = "{campusId}/edit")
     public ResponseEntity<String> updateDuck(
             @RequestParam Long id,
             @RequestParam Optional<String> name,
@@ -73,6 +74,7 @@ public class BirdController {
             @RequestParam Optional<String> location,
             @RequestParam Optional<String> locationImageURL, @RequestParam Optional<String> diet,
             @RequestParam Optional<String> dietImageURL,
+            @PathVariable Long campusId,
             @RequestParam String apiKey) {
         Optional<ApiKey> requestKey = apiKeyRepository.findById(apiKey);
 
@@ -119,8 +121,9 @@ public class BirdController {
         return birdRepository.findAll();
     }
 
-    @DeleteMapping(path = "/remove")
-    public ResponseEntity<String> removeDuck(@RequestParam Long id, @RequestParam String apiKey) {
+    @DeleteMapping(path = "{campusId}/remove")
+    public ResponseEntity<String> removeDuck(@RequestParam Long id, @RequestParam String apiKey,
+            @PathVariable Long campusId) {
         Optional<Bird> requestDuck = birdRepository.findById(id);
         Optional<ApiKey> requestKey = apiKeyRepository.findById(apiKey);
         // Request came from user with valid api key, remove the duck

@@ -7,23 +7,33 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 
 public class ApiKeyFilter extends AbstractPreAuthenticatedProcessingFilter {
 
-    private final String principal;
-    private final String credentials;
+    private final String principalHeader;
+    private final String credentialsHeader;
 
-    public ApiKeyFilter(AuthenticationManager authenticationManager, String principal, String credentials) {
+    public ApiKeyFilter(AuthenticationManager authenticationManager, String principalHeader, String credentialsHeader) {
         super.setAuthenticationManager(authenticationManager);
 
-        this.principal = principal;
-        this.credentials = credentials;
+        this.principalHeader = principalHeader;
+        this.credentialsHeader = credentialsHeader;
     }
 
     @Override
     protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-        return request.getHeader(principal);
+        String requestURI = request.getRequestURI();
+
+        String principal = request.getHeader(principalHeader);
+        if (requestURI.contains("birds")) {
+            // Always /api/{campusId}/birds/*
+            // So by splitting campusId is always at index 2 (index 0 is empty)
+            String campusId = requestURI.split("/")[2];
+
+            principal += "_" + campusId;
+        }
+        return principal;
     }
 
     @Override
     protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
-        return request.getHeader(credentials);
+        return request.getHeader(credentialsHeader);
     }
 }
