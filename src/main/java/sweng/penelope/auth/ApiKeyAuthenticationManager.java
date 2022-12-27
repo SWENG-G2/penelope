@@ -1,8 +1,13 @@
 package sweng.penelope.auth;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -20,6 +25,27 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
     @Autowired
     private ApiKeyRepository apiKeyRepository;
 
+    private Authentication verifyCredentials(Authentication authentication, ApiKey apiKey)
+            throws AuthorizationServiceException {
+        MessageDigest messageDigest;
+        String principal = authentication.getPrincipal().toString();
+        //String credentials = authentication.getCredentials().toString();
+        byte[] cred = DatatypeConverter.parseHexBinary(authentication.getCredentials().toString());
+        try {
+            messageDigest = MessageDigest.getInstance("SHA256");
+            byte hash[] = messageDigest.digest((principal + apiKey.getSecret()).getBytes());
+            System.out.println(DatatypeConverter.printHexBinary(hash));
+            if (hash.equals(cred))
+                authentication.setAuthenticated(true);
+            else
+                throw new BadCredentialsException("Hash mismatch");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new AuthorizationServiceException("Hashing algorithm error");
+        }
+        return authentication;
+    }
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String[] principal = authentication.getPrincipal().toString().split("_");
@@ -33,12 +59,13 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
                     for (Campus campus : apiKey.getCampuses()) {
                         if (campus.getId().toString().equals(principal[1])) {
                             authentication.setAuthenticated(true);
-                            break;
+                            return verifyCredentials(authentication, apiKey);
                         }
                     }
                     throw new UnauthorisedException();
-                } else
-                    authentication.setAuthenticated(true);
+                } else {
+                    return verifyCredentials(authentication, apiKey);
+                }
             } else
                 throw new UsernameNotFoundException("Could not find apikey");
         }

@@ -18,6 +18,7 @@ public class ApiKey {
     @Id
     private String key;
 
+    private String secret;
     private String ownerName;
 
     @Column(columnDefinition = "boolean default false")
