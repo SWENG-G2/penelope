@@ -2,6 +2,7 @@ package sweng.penelope.auth;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import javax.xml.bind.DatatypeConverter;
@@ -29,13 +30,11 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
             throws AuthorizationServiceException {
         MessageDigest messageDigest;
         String principal = authentication.getPrincipal().toString();
-        //String credentials = authentication.getCredentials().toString();
-        byte[] cred = DatatypeConverter.parseHexBinary(authentication.getCredentials().toString());
+        byte[] suppliedKey = DatatypeConverter.parseHexBinary(authentication.getCredentials().toString());
         try {
             messageDigest = MessageDigest.getInstance("SHA256");
-            byte hash[] = messageDigest.digest((principal + apiKey.getSecret()).getBytes());
-            System.out.println(DatatypeConverter.printHexBinary(hash));
-            if (hash.equals(cred))
+            byte[] correctKey = messageDigest.digest((principal + apiKey.getSecret()).getBytes());
+            if (Arrays.equals(correctKey, suppliedKey))
                 authentication.setAuthenticated(true);
             else
                 throw new BadCredentialsException("Hash mismatch");
@@ -44,6 +43,16 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
             throw new AuthorizationServiceException("Hashing algorithm error");
         }
         return authentication;
+    }
+
+    private Authentication handleNonAdminKey(Authentication authentication, ApiKey apiKey, String campusId) {
+        for (Campus campus : apiKey.getCampuses()) {
+            if (campus.getId().toString().equals(campusId)) {
+                authentication.setAuthenticated(true);
+                return verifyCredentials(authentication, apiKey);
+            }
+        }
+        throw new UnauthorisedException();
     }
 
     @Override
@@ -55,14 +64,8 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
 
             if (requestKey.isPresent()) {
                 ApiKey apiKey = requestKey.get();
-                if (!apiKey.getAdmin()) {
-                    for (Campus campus : apiKey.getCampuses()) {
-                        if (campus.getId().toString().equals(principal[1])) {
-                            authentication.setAuthenticated(true);
-                            return verifyCredentials(authentication, apiKey);
-                        }
-                    }
-                    throw new UnauthorisedException();
+                if (Boolean.FALSE.equals(apiKey.getAdmin())) {
+                    return handleNonAdminKey(authentication, apiKey, principal[1]);
                 } else {
                     return verifyCredentials(authentication, apiKey);
                 }

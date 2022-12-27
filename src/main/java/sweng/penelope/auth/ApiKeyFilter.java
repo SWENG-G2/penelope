@@ -24,8 +24,8 @@ public class ApiKeyFilter extends AbstractPreAuthenticatedProcessingFilter {
         String principal = request.getHeader(principalHeader);
         if (requestURI.contains("birds")) {
             // Always /api/{campusId}/birds/*
-            // So by splitting campusId is always at index 2 (index 0 is empty)
-            String campusId = requestURI.split("/")[2];
+            // So by splitting campusId is always at index 3 (index 0 is empty)
+            String campusId = requestURI.split("/")[3];
 
             principal += "_" + campusId;
         }
