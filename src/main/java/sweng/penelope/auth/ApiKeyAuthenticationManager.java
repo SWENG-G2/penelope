@@ -58,9 +58,13 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        if (authentication.getCredentials() == null || authentication.getPrincipal() == null)
+            throw new BadCredentialsException("Authentication headers are missing");
+
         String[] principal = authentication.getPrincipal().toString().split("_");
 
         if (principal.length > 1) {
+
             Optional<ApiKey> requestKey = apiKeyRepository.findById(principal[0]);
 
             if (requestKey.isPresent()) {
