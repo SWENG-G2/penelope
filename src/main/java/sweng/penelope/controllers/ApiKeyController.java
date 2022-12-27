@@ -34,8 +34,8 @@ public class ApiKeyController {
 
     private String generateString(int length, SecureRandom secureRandom) {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < PUBLIC_KEY_LENGTH; i++) {
-            builder.append(CHARS[secureRandom.nextInt(length)]);
+        for (int i = 0; i < length; i++) {
+            builder.append(CHARS[secureRandom.nextInt(CHARS.length)]);
         }
 
         return builder.toString();
