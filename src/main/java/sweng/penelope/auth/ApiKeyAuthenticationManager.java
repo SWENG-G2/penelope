@@ -46,9 +46,10 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
     }
 
     private Authentication handleNonAdminKey(Authentication authentication, ApiKey apiKey, String campusId) {
+        if (authentication.getPrincipal().toString().contains("_campus"))
+            throw new UnauthorisedException();
         for (Campus campus : apiKey.getCampuses()) {
             if (campus.getId().toString().equals(campusId)) {
-                authentication.setAuthenticated(true);
                 return verifyCredentials(authentication, apiKey);
             }
         }
