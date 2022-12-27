@@ -7,7 +7,9 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.UpdateTimestamp;
@@ -23,7 +25,7 @@ import lombok.Setter;
 @Setter
 public class Campus {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -37,4 +39,7 @@ public class Campus {
     @OneToMany(mappedBy = "campus", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Bird> birds = new HashSet<>();
+
+    @ManyToMany(mappedBy = "campuses")
+    private Set<ApiKey> apiKeys = new HashSet<>();
 }
