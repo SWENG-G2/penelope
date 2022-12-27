@@ -40,6 +40,6 @@ public class Campus {
     @JsonManagedReference
     private Set<Bird> birds = new HashSet<>();
 
-    @ManyToMany(mappedBy = "campuses", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "campuses")
     private Set<ApiKey> apiKeys = new HashSet<>();
 }

@@ -28,8 +28,8 @@ public class ApiKeyFilter extends AbstractPreAuthenticatedProcessingFilter {
             String campusId = requestURI.split("/")[3];
 
             principal += "_" + campusId;
-        } else if (requestURI.contains("campus")) {
-            principal += "_campus";
+        } else if (requestURI.contains("campus") || requestURI.contains("apikeys")) {
+            principal += "_admin";
         }
         return principal;
     }
