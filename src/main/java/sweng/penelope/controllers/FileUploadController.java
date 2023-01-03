@@ -27,7 +27,7 @@ public class FileUploadController {
             if (originalfileName != null && !originalfileName.contains("..")) {
                 String fileName = Paths.get(originalfileName).getFileName().toString();
                 if (storageService.store(type, file))
-                    return ResponseEntity.ok().body(String.format("/%s/%s", type, fileName));
+                    return ResponseEntity.ok().body(String.format("%s/%s", type, fileName));
                 else
                     return ResponseEntity.internalServerError().body("Could not store file.");
             }
