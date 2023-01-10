@@ -23,12 +23,6 @@ public class CampusXML extends CommonXML {
                 .addAttribute(HEIGHT, "200")
                 .addAttribute("title", Long.toString(id));
 
-        // Rectangle
-        duckSlide.addElement("rectangle").addAttribute(WIDTH, "1720").addAttribute(HEIGHT, "160")
-                .addAttribute(COLOUR, LIGHT_GRAY).addAttribute("borderWidth", "5")
-                .addAttribute("borderColour", DARK_GRAY).addAttribute(X_COORDINATE, "100")
-                .addAttribute(Y_COORDINATE, "20");
-
         // Title
         duckSlide.addElement("text").addAttribute(FONT_NAME, "def").addAttribute(FONT_SIZE, FONT_SIZE_TITLE_SM)
                 .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "610") // 480 (image) + 100 (rectangle) + 30
