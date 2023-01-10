@@ -31,13 +31,13 @@ public class CampusXML extends CommonXML {
 
         // Title
         duckSlide.addElement("text").addAttribute(FONT_NAME, "def").addAttribute(FONT_SIZE, FONT_SIZE_TITLE_SM)
-                .addAttribute(COLOUR, "#000000").addAttribute(X_COORDINATE, "610") // 480 (image) + 100 (rectangle) + 30
+                .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "610") // 480 (image) + 100 (rectangle) + 30
                 .addAttribute(Y_COORDINATE, "30")
                 .addText(name);
 
         // Description
         duckSlide.addElement("text").addAttribute(FONT_NAME, "def").addAttribute(FONT_SIZE, FONT_SIZE_BODY)
-                .addAttribute(COLOUR, "#000000").addAttribute(X_COORDINATE, "610")
+                .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "610")
                 .addAttribute(Y_COORDINATE, "68") // 28 (FONT_SIZE_TITLE_SM) + 2*20 (FONT_SIZE_BODY)
                 .addText(formatDescription(description));
 

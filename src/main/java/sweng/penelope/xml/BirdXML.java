@@ -11,7 +11,6 @@ public class BirdXML extends CommonXML {
     private static final String HERO_IMAGE_BACKGROUND_DIMENSION = "1880";
     private static final String HERO_IMAGE_DIMENSION = "1870";
     private static final String FONT = "def";
-    private static final String TEXT_COLOUR = "#00000000";
 
     // Attributes
     private static final String URL = "url";
@@ -49,7 +48,7 @@ public class BirdXML extends CommonXML {
                 .addAttribute(COLOUR, "#E89266FF"); // Hero title container colour
         // Title text
         heroSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "20")
-                .addAttribute(COLOUR, TEXT_COLOUR).addAttribute(FONT_NAME, FONT).addAttribute(FONT_SIZE, "22")
+                .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT).addAttribute(FONT_SIZE, "22")
                 .addText(birdName);
         // Title audio
         heroSlide.addElement("audio").addAttribute(URL, audioURL).addAttribute("loop", "false")
