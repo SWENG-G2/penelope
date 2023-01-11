@@ -10,7 +10,6 @@ public class BirdXML extends CommonXML {
     private static final String HERO_SLIDE_HEIGHT = "2200";
     private static final String HERO_IMAGE_BACKGROUND_DIMENSION = "1880";
     private static final String HERO_IMAGE_DIMENSION = "1870";
-    private static final String FONT = "def";
 
     // Attributes
     private static final String URL = "url";

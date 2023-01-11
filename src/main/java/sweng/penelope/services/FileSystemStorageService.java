@@ -1,5 +1,7 @@
 package sweng.penelope.services;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -8,6 +10,8 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -75,6 +79,18 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
+    public boolean storeProcessedImage(String fileName, BufferedImage image) {
+        File outFile = Paths.get(baseString, "image", fileName).toFile();
+        try {
+            ImageIO.write(image, "png", outFile);
+            return true;
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public Stream<Path> loadAll() {
         // Don't allow this
         return null;
@@ -131,7 +147,7 @@ public class FileSystemStorageService implements StorageService {
             while (birdsIterator.hasNext()) {
                 Bird bird = birdsIterator.next();
 
-                campusXML.addBird(bird.getName(), bird.getAboutMe(), bird.getId(), bird.getHeroImageURL());
+                campusXML.addBird(bird.getName(), bird.getAboutMe(), bird.getId(), bird.getListImageURL());
             }
         }
 
@@ -169,5 +185,4 @@ public class FileSystemStorageService implements StorageService {
         }
         return null;
     }
-
 }

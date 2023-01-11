@@ -13,7 +13,7 @@ public class CampusesListXML extends CommonXML {
                 .addAttribute("title", Long.toString(id));
 
         // Campus Name
-        campusSlide.addElement("text").addAttribute(FONT_NAME, "def").addAttribute(FONT_SIZE, FONT_SIZE_TITLE)
+        campusSlide.addElement("text").addAttribute(FONT_NAME, FONT).addAttribute(FONT_SIZE, FONT_SIZE_TITLE)
                 .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "100")
                 .addAttribute(Y_COORDINATE, "45")
                 .addText(name);

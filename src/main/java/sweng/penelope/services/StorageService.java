@@ -1,5 +1,6 @@
 package sweng.penelope.services;
 
+import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -10,6 +11,8 @@ public interface StorageService {
 	void init();
 
 	boolean store(String type, MultipartFile file);
+
+	boolean storeProcessedImage(String fileName, BufferedImage image);
 
 	Stream<Path> loadAll();
 

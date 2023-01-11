@@ -1,9 +1,17 @@
 package sweng.penelope.controllers;
 
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.file.Paths;
+
+import javax.imageio.ImageIO;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,15 +28,50 @@ public class FileUploadController {
         this.storageService = storageService;
     }
 
+    private ResponseEntity<String> processImage(MultipartFile file, String fileName) {
+        try {
+            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+
+            int width = bufferedImage.getWidth();
+            int height = bufferedImage.getHeight();
+
+            int size = Math.min(width, height);
+
+            BufferedImage outputImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D graphics2d = outputImage.createGraphics();
+
+            // Draw circle image
+            graphics2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            graphics2d.fillOval(0, 0, size, size);
+            graphics2d.setComposite(AlphaComposite.SrcIn);            
+            graphics2d.drawImage(bufferedImage, 0, 0, null);
+
+            String processedFileName = fileName.split("\\.")[0] + "_processed.png";
+
+            if (storageService.storeProcessedImage(processedFileName, outputImage))
+                return ResponseEntity.ok(String.format("image/%s:image/%s", fileName, processedFileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            return ResponseEntity.internalServerError().body("Could not process image file");
+        }
+        return ResponseEntity.ok("null");
+    }
+
     @PostMapping("{campusId}/new")
-    public ResponseEntity<String> handleFileUpload(@RequestParam MultipartFile file, @RequestParam String type) {
+    public ResponseEntity<String> handleFileUpload(@RequestParam MultipartFile file, @RequestParam String type,
+            @RequestParam(required = false) boolean process) {
         if ((type.equals("audio") || type.equals("video") || type.equals("image")) && file != null) {
             String originalfileName = file.getOriginalFilename();
             if (originalfileName != null && !originalfileName.contains("..")) {
                 String fileName = Paths.get(originalfileName).getFileName().toString();
-                if (storageService.store(type, file))
+                if (StringUtils.countOccurrencesOf(fileName, ".") > 1)
+                    return ResponseEntity.badRequest().body("File name connot contain dots");
+                if (storageService.store(type, file)) {
+                    if (type.equals("image") && process)
+                        return processImage(file, fileName);
                     return ResponseEntity.ok().body(String.format("%s/%s", type, fileName));
-                else
+                } else
                     return ResponseEntity.internalServerError().body("Could not store file.");
             }
             return ResponseEntity.badRequest().body("File name cannot contain \"..\" and cannot be null");

@@ -35,7 +35,8 @@ public class BirdController {
     private CampusRepository campusRepository;
 
     @PostMapping(path = "{campusId}/new")
-    public ResponseEntity<String> newDuck(@RequestParam String name, @RequestParam String heroImageURL,
+    public ResponseEntity<String> newDuck(@RequestParam String name, @RequestParam String listImageURL,
+            @RequestParam String heroImageURL,
             @RequestParam String soundURL,
             @RequestParam String aboutMe, @RequestParam String aboutMeVideoURL, @RequestParam String location,
             @RequestParam String locationImageURL, @RequestParam String diet, @RequestParam String dietImageURL,
@@ -48,7 +49,11 @@ public class BirdController {
             Campus campus = campusRequest.get();
             String author = ControllerUtils.getAuthorName(authentication, apiKeyRepository);
 
-            Bird bird = new Bird(name, heroImageURL, soundURL, aboutMe, aboutMeVideoURL, location, locationImageURL,
+            if (name.length() > 20)
+                return ResponseEntity.unprocessableEntity().body("The bird's name cannot exceed 20 characters");
+
+            Bird bird = new Bird(name, listImageURL, heroImageURL, soundURL, aboutMe, aboutMeVideoURL, location,
+                    locationImageURL,
                     diet, dietImageURL, campus, author);
 
             birdRepository.save(bird);
