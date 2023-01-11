@@ -45,13 +45,15 @@ public class BirdXML extends CommonXML {
                                 .addAttribute(X_COORDINATE, "0").addAttribute(Y_COORDINATE, "0")
                                 .addAttribute(COLOUR, "#E89266FF"); // Hero title container colour
                 // Title text
-                heroSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "22")
+                heroSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "25")
                                 .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT)
                                 .addAttribute(FONT_SIZE, FONT_SIZE_TITLE_MD)
                                 .addText(birdName);
                 // Title audio
                 heroSlide.addElement("audio").addAttribute(URL, audioURL).addAttribute("loop", "false")
-                                .addAttribute(X_COORDINATE, "1880").addAttribute(Y_COORDINATE, "20");
+                                // Audio button is drawn to be 1/5 of slide width
+                                .addAttribute(X_COORDINATE, "1536") // 1536 = SLIDE_WIDTH * 4/5
+                                .addAttribute(Y_COORDINATE, "15");
 
                 // Image
                 heroSlide.addElement("image").addAttribute(URL, imageURL).addAttribute(WIDTH, HERO_IMAGE_WIDTH)
