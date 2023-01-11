@@ -19,7 +19,7 @@ public class CampusXML extends CommonXML {
     }
 
     public void addBird(String name, String description, Long id, String imageURL) {
-        Element duckSlide = presentation.addElement("slide").addAttribute(WIDTH, "1920")
+        Element duckSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
                 .addAttribute(HEIGHT, "200")
                 .addAttribute("title", Long.toString(id));
 

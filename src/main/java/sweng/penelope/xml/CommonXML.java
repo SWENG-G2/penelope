@@ -29,15 +29,23 @@ public class CommonXML {
     protected static final String FROM_Y = "fromY";
     protected static final String TO_X = "toX";
     protected static final String TO_Y = "toY";
+    protected static final String BORDER_WIDTH = "borderWidth";
+    protected static final String BORDER_COLOUR = "borderColour";
 
     // Values
+    protected static final String SLIDE_WIDTH = "1920";
     protected static final String DARK_GRAY = "#8A8178FF";
     protected static final String LIGHT_GRAY = "#DFEBEBFF";
     protected static final String BLACK = "#000000FF";
+    protected static final String TRANSPARENT = "#00000000";
     protected static final String FONT_SIZE_TITLE = "32";
+    protected static final String FONT_SIZE_TITLE_MD = "28";
     protected static final String FONT_SIZE_TITLE_SM = "22";
     protected static final String FONT_SIZE_BODY = "16";
     protected static final String FONT = "mono";
+    protected static final String MATCH_WIDTH_CLIENT_SIDE = "-1";
+    protected static final String MATCH_X_CLIENT_SIDE = "-1";
+    protected static final String PAD_CLIENT_SIDE = "-";
 
     private XMLConfiguration xmlConfiguration;
 

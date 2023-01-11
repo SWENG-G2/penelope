@@ -8,7 +8,7 @@ public class CampusesListXML extends CommonXML {
     }
 
     public void addCampus(String name, Long id) {
-        Element campusSlide = presentation.addElement("slide").addAttribute(WIDTH, "1920")
+        Element campusSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
                 .addAttribute(HEIGHT, "120")
                 .addAttribute("title", Long.toString(id));
 
