@@ -69,4 +69,29 @@ public class BirdXML extends CommonXML {
                                 .addAttribute(BORDER_WIDTH, "10")
                                 .addAttribute(BORDER_COLOUR, DARK_GRAY);
         }
+
+        public void addAboutMe(String aboutMeVideoURL, String aboutMe) {
+                // Create slide
+                Element aboutMeSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
+                                .addAttribute(HEIGHT, WRAP_CONTENT_CLIENT_SIDE)
+                                .addAttribute("title", "About me");
+
+                // Add description
+                aboutMeSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "0")
+                                .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT)
+                                .addAttribute(FONT_SIZE, FONT_SIZE_BODY)
+                                .addText(aboutMe);
+        }
+
+        public void addDiet(String dietImageURL, String diet) {
+                // Create slide
+                Element dietSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
+                                .addAttribute(HEIGHT, WRAP_CONTENT_CLIENT_SIDE)
+                                .addAttribute("title", "Diet");
+                // Add diet
+                dietSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "0")
+                                .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT)
+                                .addAttribute(FONT_SIZE, FONT_SIZE_BODY)
+                                .addText(diet);
+        }
 }

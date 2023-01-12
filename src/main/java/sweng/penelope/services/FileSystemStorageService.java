@@ -129,6 +129,8 @@ public class FileSystemStorageService implements StorageService {
             birdXML = new BirdXML(xmlConfiguration);
 
             birdXML.addHeroSlide(bird.getSoundURL(), bird.getHeroImageURL());
+            birdXML.addAboutMe(bird.getAboutMeVideoURL(), bird.getAboutMe());
+            birdXML.addDiet(bird.getDietImageURL(), bird.getDiet());
         }
 
         return birdXML;
