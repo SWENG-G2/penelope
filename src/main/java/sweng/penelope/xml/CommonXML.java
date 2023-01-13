@@ -48,6 +48,7 @@ public class CommonXML {
     protected static final String PAD_CLIENT_SIDE = "-";
     protected static final String WRAP_CONTENT_CLIENT_SIDE = "-1";
     protected static final String CENTER_IN_PARENT = "-2";
+    protected static final String END_OF_PARENT = "-3";
 
     private XMLConfiguration xmlConfiguration;
 

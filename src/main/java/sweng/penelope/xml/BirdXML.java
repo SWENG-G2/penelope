@@ -51,9 +51,8 @@ public class BirdXML extends CommonXML {
                                 .addText(birdName);
                 // Title audio
                 heroSlide.addElement("audio").addAttribute(URL, audioURL).addAttribute("loop", "false")
-                                // Audio button is drawn to be 1/5 of slide width
-                                .addAttribute(X_COORDINATE, "1536") // 1536 = SLIDE_WIDTH * 4/5
-                                .addAttribute(Y_COORDINATE, "15");
+                                .addAttribute(X_COORDINATE, END_OF_PARENT)
+                                .addAttribute(Y_COORDINATE, "0");
 
                 // Image
                 heroSlide.addElement("image").addAttribute(URL, imageURL).addAttribute(WIDTH, HERO_IMAGE_WIDTH)
