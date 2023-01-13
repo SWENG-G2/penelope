@@ -75,8 +75,14 @@ public class BirdXML extends CommonXML {
                                 .addAttribute(HEIGHT, WRAP_CONTENT_CLIENT_SIDE)
                                 .addAttribute("title", "About me");
 
+                // Add video
+                aboutMeSlide.addElement("video").addAttribute(X_COORDINATE, CENTER_IN_PARENT)
+                                .addAttribute(Y_COORDINATE, "0").addAttribute(WIDTH, "1820") // Slide Width - 100
+                                .addAttribute(HEIGHT, "250").addAttribute("loop", "false")
+                                .addAttribute(URL, aboutMeVideoURL);
+
                 // Add description
-                aboutMeSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "0")
+                aboutMeSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "250")
                                 .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT)
                                 .addAttribute(FONT_SIZE, FONT_SIZE_BODY)
                                 .addText(aboutMe);
