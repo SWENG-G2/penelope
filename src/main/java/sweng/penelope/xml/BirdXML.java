@@ -6,8 +6,8 @@ import org.dom4j.Element;
 import org.springframework.core.env.Environment;
 
 public class BirdXML extends CommonXML {
-        private static final String HERO_SLIDE_HEIGHT = "470";
-        private static final String HERO_IMAGE_CIRCLE_RADIUS = "850";
+        private static final String HERO_SLIDE_HEIGHT = "485";
+        private static final String HERO_IMAGE_CIRCLE_RADIUS = "175";
         private static final String HERO_IMAGE_WIDTH = "1700";
 
         // Attributes
@@ -57,16 +57,16 @@ public class BirdXML extends CommonXML {
 
                 // Image
                 heroSlide.addElement("image").addAttribute(URL, imageURL).addAttribute(WIDTH, HERO_IMAGE_WIDTH)
-                                .addAttribute(HEIGHT, MATCH_WIDTH_CLIENT_SIDE)
-                                .addAttribute(X_COORDINATE, "100")
+                                .addAttribute(HEIGHT, "360")
+                                .addAttribute(X_COORDINATE, CENTER_IN_PARENT)
                                 .addAttribute(Y_COORDINATE, "115");
 
                 // Image background shape
                 heroSlide.addElement("circle").addAttribute("radius", HERO_IMAGE_CIRCLE_RADIUS)
-                                .addAttribute(X_COORDINATE, "950") // radius + image x
-                                .addAttribute(Y_COORDINATE, PAD_CLIENT_SIDE + "115")
+                                .addAttribute(X_COORDINATE, CENTER_IN_PARENT)
+                                .addAttribute(Y_COORDINATE, PAD_CLIENT_SIDE + "120")
                                 .addAttribute(COLOUR, TRANSPARENT)
-                                .addAttribute(BORDER_WIDTH, "10")
+                                .addAttribute(BORDER_WIDTH, "15")
                                 .addAttribute(BORDER_COLOUR, DARK_GRAY);
         }
 
