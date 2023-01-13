@@ -93,8 +93,15 @@ public class BirdXML extends CommonXML {
                 Element dietSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
                                 .addAttribute(HEIGHT, WRAP_CONTENT_CLIENT_SIDE)
                                 .addAttribute("title", "Diet");
+                
+                // Image
+                dietSlide.addElement("image").addAttribute(URL, dietImageURL).addAttribute(WIDTH, HERO_IMAGE_WIDTH)
+                                .addAttribute(HEIGHT, "200")
+                                .addAttribute(X_COORDINATE, CENTER_IN_PARENT)
+                                .addAttribute(Y_COORDINATE, "0");
+        
                 // Add diet
-                dietSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "0")
+                dietSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "210")
                                 .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT)
                                 .addAttribute(FONT_SIZE, FONT_SIZE_BODY)
                                 .addText(diet);
