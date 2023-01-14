@@ -1,11 +1,12 @@
 package sweng.penelope.auth;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
+import java.io.IOException;
+import java.security.PrivateKey;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
-
-import javax.xml.bind.DatatypeConverter;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import sweng.penelope.entities.ApiKey;
 import sweng.penelope.entities.Campus;
 import sweng.penelope.repositories.ApiKeyRepository;
+import sweng.penelope.services.StorageService;
 
 @Service
 public class ApiKeyAuthenticationManager implements AuthenticationManager {
@@ -26,21 +28,33 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
     @Autowired
     private ApiKeyRepository apiKeyRepository;
 
+    @Autowired
+    private StorageService storageService;
+
     private Authentication verifyCredentials(Authentication authentication, ApiKey apiKey)
             throws AuthorizationServiceException {
-        MessageDigest messageDigest;
-        String principal = authentication.getPrincipal().toString();
-        byte[] suppliedKey = DatatypeConverter.parseHexBinary(authentication.getCredentials().toString());
         try {
-            messageDigest = MessageDigest.getInstance("SHA256");
-            byte[] correctKey = messageDigest.digest((principal + apiKey.getSecret()).getBytes());
-            if (Arrays.equals(correctKey, suppliedKey))
+            // Retrieve private key
+            byte[] privateKeyBytes = storageService.loadKey(apiKey.getIdentity());
+
+            if (privateKeyBytes.length == 0)
+                throw new IOException("Key is empty");
+
+            PrivateKey privateKey = RSAUtils.regeneratePrivateKey(privateKeyBytes);
+
+            // Decrypt credentials
+            String credentials = RSAUtils.decrypt(privateKey, authentication.getCredentials().toString());
+            String[] credentialsSplit = credentials.split("=");
+
+            // Compare timestamp
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Europe/London"));
+            ZonedDateTime sentAt = ZonedDateTime.parse(credentialsSplit[1]);
+            Duration delta = Duration.between(now, sentAt);
+            if (delta.getSeconds() < 60)
                 authentication.setAuthenticated(true);
-            else
-                throw new BadCredentialsException("Hash mismatch");
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new AuthorizationServiceException("Hashing algorithm error");
+            throw new BadCredentialsException("Bad Credentials");
         }
         return authentication;
     }

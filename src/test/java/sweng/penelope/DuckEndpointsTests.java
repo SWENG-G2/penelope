@@ -43,7 +43,7 @@ public class DuckEndpointsTests {
     public void setUp() {
         // Inject test key
         testApiKey = new ApiKey();
-        testApiKey.setKey(KEY);
+        testApiKey.setIdentity(KEY);
         testApiKey.setOwnerName(OWNER);
 
         apiKeyRepository.save(testApiKey);

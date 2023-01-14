@@ -38,7 +38,7 @@ public class CampusEndpointsTests {
     public void setUp() {
         // Inject admin test key
         testAdminApiKey = new ApiKey();
-        testAdminApiKey.setKey(ADMIN_KEY);
+        testAdminApiKey.setIdentity(ADMIN_KEY);
         testAdminApiKey.setOwnerName(ADMIN_OWNER);
         testAdminApiKey.setAdmin(true);
 
@@ -46,7 +46,7 @@ public class CampusEndpointsTests {
 
         // Inject non admin key
         testApiKey = new ApiKey();
-        testApiKey.setKey(KEY);
+        testApiKey.setIdentity(KEY);
         testApiKey.setOwnerName(OWNER);
 
         apiKeyRepository.save(testApiKey);

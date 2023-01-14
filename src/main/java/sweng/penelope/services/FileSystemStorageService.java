@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.PrivateKey;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -14,7 +15,7 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -34,20 +35,20 @@ import sweng.penelope.xml.XMLConfiguration;
 @Service
 public class FileSystemStorageService implements StorageService {
 
-    private final String baseString;
+    @Value("${penelope.storage.base-folder}")
+    private String baseString;
+
+    @Value("${penelope.storage.keys-folder}")
+    private String keysBaseString;
 
     @Autowired
     private BirdRepository birdRepository;
     @Autowired
     private CampusRepository campusRepository;
 
-    @Autowired
-    public FileSystemStorageService(Environment environment) {
-        this.baseString = environment.getProperty("storage.base-folder");
-    }
-
     @Override
     public void init() {
+        Path keysBasePath = Paths.get(keysBaseString);
         Path basePath = Paths.get(baseString);
         Path videoPath = basePath.resolve("video");
         Path audioPath = basePath.resolve("audio");
@@ -61,6 +62,8 @@ public class FileSystemStorageService implements StorageService {
                 Files.createDirectories(audioPath);
             if (!Files.exists(imagePath))
                 Files.createDirectories(imagePath);
+            if (!Files.exists(keysBasePath))
+                Files.createDirectories(keysBasePath);
         } catch (IOException ioException) {
             throw new StorageException("Could not create base directories structure", ioException);
         }
@@ -186,5 +189,41 @@ public class FileSystemStorageService implements StorageService {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean storeKey(PrivateKey privateKey, String identity) {
+        Path destinationPath = Paths.get(keysBaseString, identity);
+        try {
+            Files.write(destinationPath, privateKey.getEncoded());
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public byte[] loadKey(String identity) {
+        Path sourcePath = Paths.get(keysBaseString, identity);
+        try {
+            return Files.readAllBytes(sourcePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
+    }
+
+    @Override
+    public boolean removeKey(String identity) {
+        Path sourcePath = Paths.get(keysBaseString, identity);
+
+        try {
+            Files.delete(sourcePath);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
