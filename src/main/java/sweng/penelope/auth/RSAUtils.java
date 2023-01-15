@@ -1,6 +1,7 @@
 package sweng.penelope.auth;
 
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -9,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
@@ -16,6 +18,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 
 public class RSAUtils {
     private static final int KEY_SIZE = 2048;
@@ -37,9 +41,11 @@ public class RSAUtils {
     }
 
     public static String decrypt(PrivateKey privateKey, String input) throws NoSuchAlgorithmException,
-            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
+            InvalidAlgorithmParameterException {
         Cipher cipher = Cipher.getInstance(CYPHER);
-        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        cipher.init(Cipher.DECRYPT_MODE, privateKey,
+                new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT));
 
         byte[] base64DecodedInput = Base64.getDecoder().decode(input);
 

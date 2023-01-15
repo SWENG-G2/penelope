@@ -46,12 +46,18 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
             String credentials = RSAUtils.decrypt(privateKey, authentication.getCredentials().toString());
             String[] credentialsSplit = credentials.split("=");
 
+            // Compare principal
+            if (!authentication.getPrincipal().toString().equals(credentialsSplit[0]))
+                throw new BadCredentialsException("Princpal mismatch");
+
             // Compare timestamp
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Europe/London"));
             ZonedDateTime sentAt = ZonedDateTime.parse(credentialsSplit[1]);
             Duration delta = Duration.between(now, sentAt);
             if (delta.getSeconds() < 60)
                 authentication.setAuthenticated(true);
+            else
+                throw new TimeoutException("Stale request");
         } catch (Exception e) {
             e.printStackTrace();
             throw new BadCredentialsException("Bad Credentials");
