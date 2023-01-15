@@ -44,13 +44,13 @@ public class FileUploadController {
             // Draw circle image
             graphics2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             graphics2d.fillOval(0, 0, size, size);
-            graphics2d.setComposite(AlphaComposite.SrcIn);            
+            graphics2d.setComposite(AlphaComposite.SrcIn);
             graphics2d.drawImage(bufferedImage, 0, 0, null);
 
             String processedFileName = fileName.split("\\.")[0] + "_processed.png";
 
             if (storageService.storeProcessedImage(processedFileName, campusId, outputImage))
-                return ResponseEntity.ok(String.format("image/%s/%s:image/%s/%s", campusId, fileName, campusId, processedFileName));
+                return ResponseEntity.ok(String.format("image/%s/%s", campusId, processedFileName));
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -68,11 +68,11 @@ public class FileUploadController {
                 String fileName = Paths.get(originalfileName).getFileName().toString();
                 if (StringUtils.countOccurrencesOf(fileName, ".") > 1)
                     return ResponseEntity.badRequest().body("File name connot contain dots");
-                if (storageService.store(type, campusId.toString(), file)) {
-                    if (type.equals("image") && process)
-                        return processImage(file, campusId.toString(), fileName);
+                if (type.equals("image") && process)
+                    return processImage(file, campusId.toString(), fileName);
+                else if (storageService.store(type, campusId.toString(), file))
                     return ResponseEntity.ok().body(String.format("%s/%s/%s", type, campusId.toString(), fileName));
-                } else
+                else
                     return ResponseEntity.internalServerError().body("Could not store file.");
             }
             return ResponseEntity.badRequest().body("File name cannot contain \"..\" and cannot be null");
