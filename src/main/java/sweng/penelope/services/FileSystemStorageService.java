@@ -46,6 +46,11 @@ public class FileSystemStorageService implements StorageService {
     @Autowired
     private CampusRepository campusRepository;
 
+    private void createDir(Path path) throws IOException {
+        if (!Files.exists(path))
+            Files.createDirectories(path);
+    }
+
     @Override
     public void init() {
         Path keysBasePath = Paths.get(keysBaseString);
@@ -54,25 +59,21 @@ public class FileSystemStorageService implements StorageService {
         Path audioPath = basePath.resolve("audio");
         Path imagePath = basePath.resolve("image");
         try {
-            if (!Files.exists(basePath))
-                Files.createDirectories(basePath);
-            if (!Files.exists(videoPath))
-                Files.createDirectories(videoPath);
-            if (!Files.exists(audioPath))
-                Files.createDirectories(audioPath);
-            if (!Files.exists(imagePath))
-                Files.createDirectories(imagePath);
-            if (!Files.exists(keysBasePath))
-                Files.createDirectories(keysBasePath);
+            createDir(videoPath);
+            createDir(audioPath);
+            createDir(imagePath);
+            createDir(keysBasePath);
         } catch (IOException ioException) {
             throw new StorageException("Could not create base directories structure", ioException);
         }
     }
 
     @Override
-    public boolean store(String type, MultipartFile file) {
-        Path destinationPath = Paths.get(baseString, type, file.getOriginalFilename());
+    public boolean store(String type, String campusId, MultipartFile file) {
+        Path destinationRoot = Paths.get(baseString, type, campusId);
+        Path destinationPath = destinationRoot.resolve(file.getOriginalFilename());
         try {
+            createDir(destinationRoot);
             file.transferTo(destinationPath);
             return true;
         } catch (IOException ioException) {
@@ -82,8 +83,8 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public boolean storeProcessedImage(String fileName, BufferedImage image) {
-        File outFile = Paths.get(baseString, "image", fileName).toFile();
+    public boolean storeProcessedImage(String fileName, String campusId, BufferedImage image) {
+        File outFile = Paths.get(baseString, "image", campusId, fileName).toFile();
         try {
             ImageIO.write(image, "png", outFile);
             return true;
@@ -100,13 +101,13 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Path load(String type, String fileName) {
-        return Paths.get(baseString, type, fileName);
+    public Path load(String type, String campusId, String fileName) {
+        return Paths.get(baseString, type, campusId, fileName);
     }
 
     @Override
-    public Resource loadAsResource(String type, String filename) {
-        Path filePath = load(type, filename);
+    public Resource loadAsResource(String type, String campusId, String filename) {
+        Path filePath = load(type, campusId, filename);
         try {
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists() && resource.isReadable())

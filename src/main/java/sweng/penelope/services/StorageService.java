@@ -11,9 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 public interface StorageService {
 	void init();
 
-	boolean store(String type, MultipartFile file);
+	boolean store(String type, String campusId, MultipartFile file);
 
-	boolean storeProcessedImage(String fileName, BufferedImage image);
+	boolean storeProcessedImage(String fileName, String campusId, BufferedImage image);
 
 	boolean storeKey(PrivateKey privateKey, String identity);
 
@@ -23,9 +23,9 @@ public interface StorageService {
 
 	Stream<Path> loadAll();
 
-	Path load(String fileHome, String filename);
+	Path load(String fileHome, String campusId, String filename);
 
-	Resource loadAsResource(String fileHome, String fileName);
+	Resource loadAsResource(String fileHome, String campusId, String fileName);
 
 	Resource loadAsResourceFromDB(String type, Long id);
 

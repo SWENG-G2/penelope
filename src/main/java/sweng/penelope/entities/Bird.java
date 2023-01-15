@@ -2,6 +2,7 @@ package sweng.penelope.entities;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -41,14 +42,17 @@ public class Bird {
     @NonNull
     private String soundURL;
     @NonNull
+    @Column(columnDefinition = "TEXT")
     private String aboutMe;
     @NonNull
     private String aboutMeVideoURL;
     @NonNull
+    @Column(columnDefinition = "TEXT")
     private String location;
     @NonNull
     private String locationImageURL;
     @NonNull
+    @Column(columnDefinition = "TEXT")
     private String diet;
     @NonNull
     private String dietImageURL;

@@ -18,12 +18,8 @@ import sweng.penelope.services.StorageService;
 
 @Controller
 public class FileDownloadController {
-    private final StorageService storageService;
-
     @Autowired
-    public FileDownloadController(StorageService storageService) {
-        this.storageService = storageService;
-    }
+    private StorageService storageService;
 
     private ResponseEntity<Resource> provideResponse(Resource resource, MediaType mediaType) {
         return ResponseEntity.ok()
@@ -79,10 +75,10 @@ public class FileDownloadController {
         return provideXMLResponse(resource);
     }
 
-    @GetMapping(path = "/{type}/{fileName}")
+    @GetMapping(path = "/{type}/{campusId}/{fileName}")
     @Cacheable("assets")
-    public ResponseEntity<Resource> serveAsset(@PathVariable String type, @PathVariable String fileName) {
-        Resource resource = storageService.loadAsResource(type, fileName);
+    public ResponseEntity<Resource> serveAsset(@PathVariable String type, @PathVariable String campusId, @PathVariable String fileName) {
+        Resource resource = storageService.loadAsResource(type, campusId, fileName);
 
         return provideAssetResponse(resource);
     }
