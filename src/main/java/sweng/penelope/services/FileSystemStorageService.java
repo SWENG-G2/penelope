@@ -21,6 +21,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.HtmlUtils;
 
 import sweng.penelope.entities.Bird;
 import sweng.penelope.entities.Campus;
@@ -132,9 +133,14 @@ public class FileSystemStorageService implements StorageService {
             XMLConfiguration xmlConfiguration = new XMLConfiguration(bird.getAuthor(), bird.getName(), id);
             birdXML = new BirdXML(xmlConfiguration);
 
+            String aboutMe = HtmlUtils.htmlEscape(bird.getAboutMe());
+            String diet = HtmlUtils.htmlEscape(bird.getDiet());
+            String location = HtmlUtils.htmlEscape(bird.getLocation());
+
             birdXML.addHeroSlide(bird.getSoundURL(), bird.getHeroImageURL());
-            birdXML.addAboutMe(bird.getAboutMeVideoURL(), bird.getAboutMe());
-            birdXML.addDiet(bird.getDietImageURL(), bird.getDiet());
+            birdXML.addAboutMe(bird.getAboutMeVideoURL(), aboutMe);
+            birdXML.addDiet(bird.getDietImageURL(), diet);
+            birdXML.addLocation(bird.getLocationImageURL(), location);
         }
 
         return birdXML;

@@ -41,7 +41,7 @@ public class CommonXML {
     protected static final String FONT_SIZE_TITLE = "32";
     protected static final String FONT_SIZE_TITLE_MD = "28";
     protected static final String FONT_SIZE_TITLE_SM = "22";
-    protected static final String FONT_SIZE_BODY = "16";
+    protected static final String FONT_SIZE_BODY = "18";
     protected static final String FONT = "mono";
     protected static final String MATCH_WIDTH_CLIENT_SIDE = "-1";
     protected static final String MATCH_X_CLIENT_SIDE = "-1";
