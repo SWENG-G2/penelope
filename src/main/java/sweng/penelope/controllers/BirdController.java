@@ -3,17 +3,16 @@ package sweng.penelope.controllers;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import sweng.penelope.Responses;
 import sweng.penelope.entities.Bird;
@@ -33,6 +32,8 @@ public class BirdController {
     private ApiKeyRepository apiKeyRepository;
     @Autowired
     private CampusRepository campusRepository;
+    @Autowired
+    private CacheManager cacheManager;
 
     @PostMapping(path = "{campusId}/new")
     public ResponseEntity<String> newDuck(@RequestParam String name, @RequestParam String listImageURL,
@@ -58,6 +59,8 @@ public class BirdController {
 
             birdRepository.save(bird);
 
+            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, campusId);
+
             return ResponseEntity.ok().body(String.format("Bird \"%s\" created with id %d%n", name, bird.getId()));
         } else
             return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", campusId));
@@ -80,6 +83,7 @@ public class BirdController {
         if (requestBird.isPresent()) {
             Bird bird = requestBird.get();
             String author = ControllerUtils.getAuthorName(authentication, apiKeyRepository);
+            Long previousCampus = bird.getCampus().getId();
 
             // This is 7yo writing python code quality. Look into
             // https://www.baeldung.com/spring-data-partial-update#1-mapping-strategy
@@ -109,14 +113,18 @@ public class BirdController {
             bird.setAuthor(currentAuthors);
 
             birdRepository.save(bird);
+
+            Long currentCampus = bird.getCampus().getId();
+            if (!currentCampus.equals(previousCampus))
+                CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, currentCampus);
+
+            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, previousCampus);
+
+            CacheUtils.evictCache(cacheManager, CacheUtils.BIRDS, bird.getId());
+
             return ResponseEntity.ok().body(String.format("Bird \"%s\" updated%n", bird.getName()));
         } else
             return responses.notFound(String.format("Bird %d not found. Nothing to do here...%n", id));
-    }
-
-    @GetMapping(path = "/all") // Get all the ducks
-    public @ResponseBody Iterable<Bird> getAllDucks() {
-        return birdRepository.findAll();
     }
 
     @DeleteMapping(path = "{campusId}/remove")
@@ -126,6 +134,10 @@ public class BirdController {
 
         if (requestDuck.isPresent()) {
             Bird bird = requestDuck.get();
+
+            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, bird.getCampus().getId());
+            CacheUtils.evictCache(cacheManager, CacheUtils.BIRDS, bird.getId());
+
             birdRepository.delete(bird);
 
             return ResponseEntity.ok().body(String.format("Bird %d removed from database.%n", id));

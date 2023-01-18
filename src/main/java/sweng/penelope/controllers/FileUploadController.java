@@ -9,6 +9,8 @@ import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -23,11 +25,10 @@ import sweng.penelope.services.StorageService;
 @Controller
 @RequestMapping(path = "/api/file")
 public class FileUploadController {
-    private final StorageService storageService;
-
-    public FileUploadController(StorageService storageService) {
-        this.storageService = storageService;
-    }
+    @Autowired
+    private StorageService storageService;
+    @Autowired
+    private CacheManager cacheManager;
 
     private ResponseEntity<String> processImage(MultipartFile file, String campusId, String fileName) {
         try {
@@ -66,6 +67,9 @@ public class FileUploadController {
             String originalfileName = file.getOriginalFilename();
             if (originalfileName != null && !originalfileName.contains("..")) {
                 String fileName = Paths.get(originalfileName).getFileName().toString();
+
+                CacheUtils.evictCache(cacheManager, CacheUtils.ASSETS, fileName);
+
                 if (StringUtils.countOccurrencesOf(fileName, ".") > 1)
                     return ResponseEntity.badRequest().body("File name connot contain dots");
                 if (type.equals("image") && process)

@@ -1,6 +1,9 @@
 package sweng.penelope.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -25,16 +28,19 @@ public class CampusController {
     private CampusRepository campusRepository;
     @Autowired
     private ApiKeyRepository apiKeyRepository;
+    @Autowired
+    private CacheManager cacheManager;
 
     @PostMapping(path = "/new")
     public ResponseEntity<String> newCampus(@RequestParam String name, Authentication authentication) {
-
         Campus campus = new Campus();
         String author = ControllerUtils.getAuthorName(authentication, apiKeyRepository);
         campus.setName(name);
         campus.setAuthor(author);
 
         campusRepository.save(campus);
+
+        CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES_LIST, null);
 
         return responses
                 .ok(String.format("New campus \"%s\" (id: %d) stored in database.%n", name, campus.getId()));
@@ -45,14 +51,11 @@ public class CampusController {
     public ResponseEntity<String> deleteCampus(@RequestParam Long id) {
         if (campusRepository.existsById(id)) {
             campusRepository.deleteById(id);
+
+            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES_LIST, null);
+
             return responses.ok(String.format("Campus %d deleted.%n", id));
         } else
             return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", id));
     }
-
-    @GetMapping(path = "/all")
-    public @ResponseBody Iterable<Campus> getAllCampuses() {
-        return campusRepository.findAll();
-    }
-
 }

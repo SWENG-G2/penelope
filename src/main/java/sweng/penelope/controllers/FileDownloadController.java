@@ -52,7 +52,7 @@ public class FileDownloadController {
     }
 
     @GetMapping(path = "/bird/{birdId}")
-    @Cacheable("birds")
+    @Cacheable(CacheUtils.BIRDS)
     public ResponseEntity<Resource> serveBirdXML(@PathVariable Long birdId) {
         Resource resource = storageService.loadAsResourceFromDB("bird", birdId);
 
@@ -60,7 +60,7 @@ public class FileDownloadController {
     }
 
     @GetMapping(path = "/campus/{campusId}")
-    @Cacheable("campuses")
+    @Cacheable(CacheUtils.CAMPUSES)
     public ResponseEntity<Resource> serveCampusXML(@PathVariable Long campusId) {
         Resource resource = storageService.loadAsResourceFromDB("campus", campusId);
 
@@ -68,7 +68,7 @@ public class FileDownloadController {
     }
 
     @GetMapping(path = "/campus/list")
-    @Cacheable("campusesList")
+    @Cacheable(CacheUtils.CAMPUSES_LIST)
     public ResponseEntity<Resource> serveCampusesListXML() {
         Resource resource = storageService.loadAsResourceFromDB("campusList", null);
 
@@ -76,7 +76,7 @@ public class FileDownloadController {
     }
 
     @GetMapping(path = "/{type}/{campusId}/{fileName}")
-    @Cacheable("assets")
+    @Cacheable(value = CacheUtils.ASSETS, key = "#fileName")
     public ResponseEntity<Resource> serveAsset(@PathVariable String type, @PathVariable String campusId, @PathVariable String fileName) {
         Resource resource = storageService.loadAsResource(type, campusId, fileName);
 
