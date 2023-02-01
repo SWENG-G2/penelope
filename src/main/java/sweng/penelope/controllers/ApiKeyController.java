@@ -18,6 +18,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import sweng.penelope.Responses;
 import sweng.penelope.auth.RSAUtils;
 import sweng.penelope.entities.ApiKey;
@@ -26,8 +31,12 @@ import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.CampusRepository;
 import sweng.penelope.services.StorageService;
 
+/**
+ * <code>ApiKeyController</code> handles all APIKeys endpoints.
+ */
 @Controller
 @RequestMapping(path = "/api/apikeys")
+@Api(tags = "ApiKey operations")
 public class ApiKeyController {
     @Autowired
     private ApiKeyRepository apiKeyRepository;
@@ -39,6 +48,13 @@ public class ApiKeyController {
     private static final String[] CHARS = "abcdefghijklmnoprstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     private static final int IDENTITY_LENGTH = 10;
 
+    /**
+     * Generates a secure random {@link String}.
+     * 
+     * @param length       The desired length for the string.
+     * @param secureRandom A {@link SecureRandom} instance.
+     * @return The random {@link String}.
+     */
     private String generateString(int length, SecureRandom secureRandom) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < length; i++) {
@@ -48,6 +64,14 @@ public class ApiKeyController {
         return builder.toString();
     }
 
+    /**
+     * ApiKey creation endpoint.
+     * @param admin Whether the new key should have admin priviledges.
+     * @param ownerName Human friendly name of the key's owner.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Creates a new ApiKey")
+    @ApiParam(name = "admin", value = "Whether the new key should have admin priviledges")
     @PostMapping(path = "/new")
     public ResponseEntity<String> createNewApiKey(@RequestParam Boolean admin, @RequestParam String ownerName) {
         ApiKey apiKey = new ApiKey();
@@ -59,6 +83,7 @@ public class ApiKeyController {
 
             String identity;
 
+            // Make sure identity is unique
             while (true) {
                 identity = generateString(IDENTITY_LENGTH, secureRandom);
 
@@ -68,6 +93,7 @@ public class ApiKeyController {
 
             KeyPair keyPair = RSAUtils.generateKeys();
 
+            // Store key
             if (!storageService.storeKey(keyPair.getPrivate(), identity))
                 throw new FileSystemException("Could not store key");
 
@@ -78,6 +104,7 @@ public class ApiKeyController {
 
             apiKeyRepository.save(apiKey);
 
+            // Reply with identity:publick key
             return ResponseEntity.ok().body(String.format("%s:%s%n", identity, publicKeyBase64));
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,6 +112,12 @@ public class ApiKeyController {
         }
     }
 
+    /**
+     * ApiKey removal endpoint.
+     * @param identity Identity corresponding to the ApiKey to remove
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Removes an existing ApiKey")
     @DeleteMapping(path = "/remove")
     public ResponseEntity<String> removeApiKey(@RequestParam String identity) {
         Optional<ApiKey> requestedKeyToBeDeleted = apiKeyRepository.findById(identity);

@@ -21,17 +21,38 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
+/**
+ * <code>RSAUtils</code> is a utility class to handle APIKeys
+ * generation/regeneration and to decrypt messages.
+ */
 public class RSAUtils {
     private static final int KEY_SIZE = 2048;
     private static final String ALGORITHM = "RSA";
     private static final String CYPHER = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
 
+    private RSAUtils() {
+    }
+
+    /**
+     * Generates a {@link KeyPair}.
+     * 
+     * @return {@link KeyPair}
+     * @throws NoSuchAlgorithmException
+     */
     public static KeyPair generateKeys() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
         keyPairGenerator.initialize(KEY_SIZE);
         return keyPairGenerator.generateKeyPair();
     }
 
+    /**
+     * Regenerates a {@link PrivateKey} object from a byte array.
+     * 
+     * @param privateKeyBytes The array containing key information
+     * @return {@link PrivateKey} contained in the byte array.
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
     public static PrivateKey regeneratePrivateKey(byte[] privateKeyBytes)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
@@ -40,6 +61,20 @@ public class RSAUtils {
         return keyFactory.generatePrivate(privateKeySpec);
     }
 
+    /**
+     * Decrypts an encrypted message.
+     * 
+     * @param privateKey {@link PrivateKey} corresponding to the
+     *                   {@link java.security.PublicKey PublicKey} used to encrypt.
+     * @param input      The encrypted message.
+     * @return {@link String} representation of the decrypted message.
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws InvalidAlgorithmParameterException
+     */
     public static String decrypt(PrivateKey privateKey, String input) throws NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             InvalidAlgorithmParameterException {
