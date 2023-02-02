@@ -2,7 +2,6 @@ package sweng.penelope.controllers;
 
 import java.nio.file.FileSystemException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -19,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import sweng.penelope.Responses;
@@ -66,14 +63,16 @@ public class ApiKeyController {
 
     /**
      * ApiKey creation endpoint.
-     * @param admin Whether the new key should have admin priviledges.
+     * 
+     * @param admin     Whether the new key should have admin priviledges.
      * @param ownerName Human friendly name of the key's owner.
      * @return {@link ResponseEntity}
      */
     @ApiOperation("Creates a new ApiKey")
-    @ApiParam(name = "admin", value = "Whether the new key should have admin priviledges")
     @PostMapping(path = "/new")
-    public ResponseEntity<String> createNewApiKey(@RequestParam Boolean admin, @RequestParam String ownerName) {
+    public ResponseEntity<String> createNewApiKey(
+            @ApiParam(value = "Whether the new key should have admin priviledges.") @RequestParam Boolean admin,
+            @ApiParam(value = "Human friendly name of the key's owner.") @RequestParam String ownerName) {
         ApiKey apiKey = new ApiKey();
         apiKey.setAdmin(admin);
         apiKey.setOwnerName(ownerName);
@@ -114,12 +113,14 @@ public class ApiKeyController {
 
     /**
      * ApiKey removal endpoint.
+     * 
      * @param identity Identity corresponding to the ApiKey to remove
      * @return {@link ResponseEntity}
      */
     @ApiOperation("Removes an existing ApiKey")
     @DeleteMapping(path = "/remove")
-    public ResponseEntity<String> removeApiKey(@RequestParam String identity) {
+    public ResponseEntity<String> removeApiKey(
+            @ApiParam(value = "Identity corresponding to the ApiKey to remove.") @RequestParam String identity) {
         Optional<ApiKey> requestedKeyToBeDeleted = apiKeyRepository.findById(identity);
 
         if (requestedKeyToBeDeleted.isPresent()) {
@@ -138,8 +139,18 @@ public class ApiKeyController {
         return responses.notFound(String.format("Key %s was not found. Nothing to do here...%n", identity));
     }
 
+    /**
+     * Grants permissions to access resources under a certain campus to an ApiKey.
+     * 
+     * @param campusId The id of the campus the resources belong to.
+     * @param identity The ApiKey's identity.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Grants permissions to access resources under a certain campus to an ApiKey.")
     @PatchMapping(path = "/addCampus")
-    public ResponseEntity<String> addCampusToKey(@RequestParam Long campusId, @RequestParam String identity) {
+    public ResponseEntity<String> addCampusToKey(
+            @ApiParam(value = "The id of the campus the resources belong to") @RequestParam Long campusId,
+            @ApiParam(value = "The ApiKey's identity") @RequestParam String identity) {
         Optional<ApiKey> requestKey = apiKeyRepository.findById(identity);
         Optional<Campus> requestCampus = campusRepository.findById(campusId);
 
@@ -164,8 +175,19 @@ public class ApiKeyController {
         return ResponseEntity.ok().body(String.format("Campus %d added to key %s.%n", campusId, identity));
     }
 
+    /**
+     * Removes permissions to access resources under a certain campus from an
+     * ApiKey.
+     * 
+     * @param campusId The id of the campus the resources belong to.
+     * @param identity The ApiKey's identity.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Removes permissions to access resources under a certain campus from an ApiKey.")
     @PatchMapping(path = "/removeCampus")
-    public ResponseEntity<String> removeCampusFromKey(@RequestParam Long campusId, @RequestParam String identity) {
+    public ResponseEntity<String> removeCampusFromKey(
+            @ApiParam(value = "The id of the campus to remove permissions to.") @RequestParam Long campusId,
+            @ApiParam(value = "The ApiKey's identity") @RequestParam String identity) {
         Optional<ApiKey> requestKey = apiKeyRepository.findById(identity);
         Optional<Campus> requestCampus = campusRepository.findById(campusId);
 
