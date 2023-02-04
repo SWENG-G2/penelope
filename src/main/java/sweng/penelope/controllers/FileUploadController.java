@@ -20,25 +20,50 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import sweng.penelope.services.StorageService;
 
+/**
+ * <code>FileUploadController</code> handles all upload endpoints.
+ */
 @Controller
 @RequestMapping(path = "/api/file")
+@Api(tags = "File upload operations")
+@ApiImplicitParams({
+        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true),
+        @ApiImplicitParam(paramType = "header", name = "KEY", required = true)
+})
 public class FileUploadController {
     @Autowired
     private StorageService storageService;
     @Autowired
     private CacheManager cacheManager;
 
+    /**
+     * Transforms an input image into a rounded png.
+     * 
+     * @param file     The input image.
+     * @param campusId The campus id the resource belongs to.
+     * @param fileName The file name.
+     * @return {@link ResponseEntity}
+     */
     private ResponseEntity<String> processImage(MultipartFile file, String campusId, String fileName) {
         try {
+            // Load input file
             BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
 
             int width = bufferedImage.getWidth();
             int height = bufferedImage.getHeight();
 
+            // To get a circle, we want to use the short side of the image as a measure to
+            // crop.
             int size = Math.min(width, height);
 
+            // ARGB for transparency
             BufferedImage outputImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
             Graphics2D graphics2d = outputImage.createGraphics();
 
@@ -61,7 +86,9 @@ public class FileUploadController {
     }
 
     @PostMapping("{campusId}/new")
-    public ResponseEntity<String> handleFileUpload(@RequestParam MultipartFile file, @RequestParam String type,
+    @ApiOperation("Stores the uploaded file")
+    public ResponseEntity<String> handleFileUpload(@RequestParam MultipartFile file,
+            @RequestParam String type,
             @RequestParam(required = false) boolean process, @PathVariable Long campusId) {
         if ((type.equals("audio") || type.equals("video") || type.equals("image")) && file != null) {
             String originalfileName = file.getOriginalFilename();

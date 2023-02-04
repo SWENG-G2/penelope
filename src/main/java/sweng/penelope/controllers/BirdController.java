@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import springfox.documentation.annotations.ApiIgnore;
@@ -31,6 +33,10 @@ import sweng.penelope.repositories.CampusRepository;
 @Controller
 @RequestMapping(path = "/api/birds")
 @Api(tags = "Bird operations")
+@ApiImplicitParams({
+        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true),
+        @ApiImplicitParam(paramType = "header", name = "KEY", required = true)
+})
 public class BirdController {
     private Responses responses = new Responses();
 
