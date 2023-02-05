@@ -119,8 +119,8 @@ public class BirdXML extends CommonXML {
         /**
          * Adds the "location" slide to the bird xml.
          * 
-         * @param dietImageURL URL to the bird location image.
-         * @param diet         Section text content.
+         * @param locationImageURL URL to the bird location image.
+         * @param location         Section text content.
          */
         public void addLocation(String locationImageURL, String location) {
                 // Create slide
