@@ -32,8 +32,8 @@ public class FileDownloadController {
      * Generates a response from the provided resource.
      * 
      * @param resource  The {@link Resource} to display.
-     * @param mediaType The {@MediaType} of the resource.
-     * @return {@ResponseEntity}
+     * @param mediaType The {@link MediaType} of the resource.
+     * @return {@link ResponseEntity}
      */
     private ResponseEntity<Resource> provideResponse(Resource resource, MediaType mediaType) {
         return ResponseEntity.ok()
@@ -46,7 +46,7 @@ public class FileDownloadController {
      * Generates a response from the provided xml resource.
      * 
      * @param resource The {@link Resource} to display
-     * @return {@ResponseEntity}
+     * @return {@link ResponseEntity}
      */
     private ResponseEntity<Resource> provideXMLResponse(Resource resource) {
         if (resource != null) {
@@ -60,7 +60,7 @@ public class FileDownloadController {
      * Generates a response from the provided asset resource (image, video, audio).
      * 
      * @param resource The {@link Resource} to display
-     * @return {@ResponseEntity}
+     * @return {@link ResponseEntity}
      */
     private ResponseEntity<Resource> provideAssetResponse(Resource resource) {
         if (resource != null) {

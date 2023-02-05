@@ -22,6 +22,9 @@ import sweng.penelope.entities.Campus;
 import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.services.StorageService;
 
+/**
+ * <code>ApiKeyAuthenticationManager</code> handles KEY verification.
+ */
 @Service
 public class ApiKeyAuthenticationManager implements AuthenticationManager {
 
@@ -31,6 +34,14 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
     @Autowired
     private StorageService storageService;
 
+    /**
+     * Verifies the validity of the provided KEY.
+     * 
+     * @param authentication {@link Authentication} autowired.
+     * @param apiKey         The {@link ApiKey} to process.
+     * @return {@link Authentication}
+     * @throws AuthorizationServiceException
+     */
     private Authentication verifyCredentials(Authentication authentication, ApiKey apiKey)
             throws AuthorizationServiceException {
         try {
@@ -65,6 +76,15 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
         return authentication;
     }
 
+    /**
+     * Handles authentication for a non-priviledged key.
+     * 
+     * @param authentication {@link Authentication} autowired.
+     * @param apiKey         The {@link ApiKey} to process.
+     * @param campusId       The ID of the campus the {@link ApiKey} is claiming
+     *                       access to
+     * @return {@link Authentication}
+     */
     private Authentication handleNonAdminKey(Authentication authentication, ApiKey apiKey, String campusId) {
         if (authentication.getPrincipal().toString().contains("_admin"))
             throw new UnauthorisedException();
@@ -72,6 +92,7 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
         for (Campus campus : apiKey.getCampuses()) {
             // Check user has access to requested campus
             if (campus.getId().toString().equals(campusId)) {
+                // Proceed with key verification
                 return verifyCredentials(authentication, apiKey);
             }
         }

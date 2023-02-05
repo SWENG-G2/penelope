@@ -14,6 +14,9 @@ import javax.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <code>ApiKey</code> JPA Entity
+ */
 @Entity
 @Getter
 @Setter

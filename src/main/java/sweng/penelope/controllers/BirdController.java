@@ -109,8 +109,6 @@ public class BirdController {
      * 
      * @param id               The bird's id
      * @param name             The bird's name - Optional
-     * @param listImageURL     URL to the image displayed in the birds list -
-     *                         Optional
      * @param heroImageURL     URL to the main bird image - Optional
      * @param soundURL         URL to the bird's sound - Optional
      * @param aboutMe          About the bird text information - Optional

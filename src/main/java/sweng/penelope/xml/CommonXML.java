@@ -11,6 +11,10 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
+/**
+ * <code>CommonXML</code> is a class that provides and handles common aspects to
+ * all xml classes.
+ */
 public class CommonXML {
     protected Document document;
     protected Element presentation;
@@ -52,20 +56,36 @@ public class CommonXML {
 
     private XMLConfiguration xmlConfiguration;
 
+    /**
+     * <code>CommonXML constructor</code>
+     * 
+     * @param xmlConfiguration {@link XMLConfiguration} with the required xml info.
+     */
     protected CommonXML(XMLConfiguration xmlConfiguration) {
         this.xmlConfiguration = xmlConfiguration;
 
         createDocument();
     }
 
+    /**
+     * Converts the number of slides counter to a string.
+     * 
+     * @return String representation of the counter value.
+     */
     protected String numSlidesString() {
         return Integer.toString(numSlides);
     }
 
+    /**
+     * Creates the xml document via Dom4J utilities.
+     */
     private void createDocument() {
         document = DocumentHelper.createDocument();
+        // Add namespace
         presentation = document.addElement("presentation", "urn:SWENG").addNamespace("SWENG",
                 "https://raw.githubusercontent.com/SWENG-G2/xml_standard/proposal-1/standard.xsd");
+
+        // Presentation info
         info = presentation.addElement("info");
 
         // Title
@@ -78,7 +98,13 @@ public class CommonXML {
         info.addElement("numSlides").addText(numSlidesString());
     }
 
+    /**
+     * Converts the current document to a byte array.
+     * 
+     * @return byte array representation of the document's content.
+     */
     public byte[] getBytes() {
+        // Human-friendly formatted xml.
         OutputFormat format = OutputFormat.createPrettyPrint();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         XMLWriter xmlWriter;
@@ -95,14 +121,11 @@ public class CommonXML {
         return null;
     }
 
+    /**
+     * Increments the number of slides counter.
+     */
     protected void incrementNumSlides() {
         numSlides++;
-
-        info.element("numSlides").setText(numSlidesString());
-    }
-
-    protected void decrementNumSlides() {
-        numSlides--;
 
         info.element("numSlides").setText(numSlidesString());
     }

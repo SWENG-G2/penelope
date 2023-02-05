@@ -2,12 +2,26 @@ package sweng.penelope.xml;
 
 import org.dom4j.Element;
 
+/**
+ * <code>CampusXML</code> handles campus xml creation.
+ */
 public class CampusXML extends CommonXML {
 
+    /**
+     * <code>CampusXML</code> constructor.
+     * 
+     * @param xmlConfiguration {@link XMLConfiguration} with the required xml info.
+     */
     public CampusXML(XMLConfiguration xmlConfiguration) {
         super(xmlConfiguration);
     }
 
+    /**
+     * Clips the provided bird description to 50 characters.
+     * 
+     * @param description The text description
+     * @return The clipped text description.
+     */
     private String formatDescription(String description) {
         // Display max 50 chars
         String formattedDescription = description.substring(0, Math.min(description.length(), 50));
@@ -18,6 +32,14 @@ public class CampusXML extends CommonXML {
         return formattedDescription;
     }
 
+    /**
+     * Adds a bird to the campus xml.
+     * 
+     * @param name        The bird's name.
+     * @param description The bird's description (about me section).
+     * @param id          The bird's id.
+     * @param imageURL    The bird's list image url.
+     */
     public void addBird(String name, String description, Long id, String imageURL) {
         Element duckSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
                 .addAttribute(HEIGHT, "200")
@@ -36,7 +58,8 @@ public class CampusXML extends CommonXML {
                 .addText(formatDescription(description));
 
         // Image
-        duckSlide.addElement("image").addAttribute("url", imageURL).addAttribute(WIDTH, "480") // 480 = 100 * (1920/200) * (100/200)
+        duckSlide.addElement("image").addAttribute("url", imageURL).addAttribute(WIDTH, "480") // 480 = 100 * (1920/200)
+                                                                                               // * (100/200)
                 .addAttribute(HEIGHT, "100").addAttribute(X_COORDINATE, "40")
                 .addAttribute(Y_COORDINATE, "40");
 

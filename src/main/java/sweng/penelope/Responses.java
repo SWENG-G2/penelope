@@ -8,7 +8,7 @@ public class Responses {
      * Shorthand for successful response.
      * 
      * @param message The message to display as response body
-     * @return ResponseEntity<String>
+     * @return {@link ResponseEntity}
      */
     public ResponseEntity<String> ok(String message) {
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -17,7 +17,7 @@ public class Responses {
     /**
      * Shorthand for response to unauthorised request.
      * 
-     * @return ResponseEntity<String>
+     * @return {@link ResponseEntity}
      */
     public ResponseEntity<String> unauthorised() {
         return new ResponseEntity<>("You shall not pass!", HttpStatus.UNAUTHORIZED);
@@ -27,7 +27,7 @@ public class Responses {
      * Shorthand for resource not found response.
      * 
      * @param message The message to display as response body
-     * @return ResponseEntity<String>
+     * @return {@link ResponseEntity}
      */
     public ResponseEntity<String> notFound(String message) {
         return new ResponseEntity<>(message,
@@ -37,7 +37,7 @@ public class Responses {
     /**
      * Shorthand for internal server error response.
      * @param message The message to display as response body
-     * @return ResponseEntity<String>
+     * @return {@link ResponseEntity}
      */
     public ResponseEntity<String> internalServerError(String message) {
         return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);

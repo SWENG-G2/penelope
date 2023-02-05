@@ -2,11 +2,26 @@ package sweng.penelope.xml;
 
 import org.dom4j.Element;
 
+/**
+ * <code>CampusesListXML</code> handles campuses list xml creation.
+ */
 public class CampusesListXML extends CommonXML {
+
+    /**
+     * <code>CampusesListXML</code> constructor.
+     * 
+     * @param xmlConfiguration {@link XMLConfiguration} with the required xml info.
+     */
     public CampusesListXML(XMLConfiguration xmlConfiguration) {
         super(xmlConfiguration);
     }
 
+    /**
+     * Adds a campus to the campuses list xml.
+     * 
+     * @param name The campus' name.
+     * @param id   The campus's id.
+     */
     public void addCampus(String name, Long id) {
         Element campusSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
                 .addAttribute(HEIGHT, "120")
