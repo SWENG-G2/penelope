@@ -37,8 +37,8 @@ import sweng.penelope.services.StorageService;
 @RequestMapping(path = "/api/apikeys")
 @Api(tags = "ApiKey operations")
 @ApiImplicitParams({
-        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true),
-        @ApiImplicitParam(paramType = "header", name = "KEY", required = true)
+        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true, dataType = "java.lang.String"),
+        @ApiImplicitParam(paramType = "header", name = "KEY", required = true, dataType = "java.lang.String")
 })
 public class ApiKeyController {
     @Autowired
@@ -120,14 +120,14 @@ public class ApiKeyController {
     /**
      * ApiKey removal endpoint.
      * 
-     * @param identity Identity corresponding to the ApiKey to remove
+     * @param targetIdentity Identity corresponding to the ApiKey to remove
      * @return {@link ResponseEntity}
      */
     @ApiOperation("Removes an existing ApiKey")
     @DeleteMapping(path = "/remove")
     public ResponseEntity<String> removeApiKey(
-            @ApiParam(value = "Identity corresponding to the ApiKey to remove.") @RequestParam String identity) {
-        Optional<ApiKey> requestedKeyToBeDeleted = apiKeyRepository.findById(identity);
+            @ApiParam(value = "Identity corresponding to the ApiKey to remove.") @RequestParam String targetIdentity) {
+        Optional<ApiKey> requestedKeyToBeDeleted = apiKeyRepository.findById(targetIdentity);
 
         if (requestedKeyToBeDeleted.isPresent()) {
             ApiKey keyToBeDeleted = requestedKeyToBeDeleted.get();
@@ -135,35 +135,36 @@ public class ApiKeyController {
             if (storageService.removeKey(keyToBeDeleted.getIdentity())) {
                 apiKeyRepository.delete(keyToBeDeleted);
 
-                return ResponseEntity.ok().body(String.format("Key %s deleted.%n", identity));
+                return ResponseEntity.ok().body(String.format("Key %s deleted.%n", targetIdentity));
             } else {
                 return ResponseEntity.internalServerError().build();
             }
         }
 
         Responses responses = new Responses();
-        return responses.notFound(String.format("Key %s was not found. Nothing to do here...%n", identity));
+        return responses.notFound(String.format("Key %s was not found. Nothing to do here...%n", targetIdentity));
     }
 
     /**
      * Grants permissions to access resources under a certain campus to an ApiKey.
      * 
-     * @param campusId The id of the campus the resources belong to.
-     * @param identity The ApiKey's identity.
+     * @param campusId       The id of the campus the resources belong to.
+     * @param targetIdentity The ApiKey's identity.
      * @return {@link ResponseEntity}
      */
     @ApiOperation("Grants permissions to access resources under a certain campus to an ApiKey.")
     @PatchMapping(path = "/addCampus")
     public ResponseEntity<String> addCampusToKey(
             @ApiParam(value = "The id of the campus the resources belong to") @RequestParam Long campusId,
-            @ApiParam(value = "The ApiKey's identity") @RequestParam String identity) {
-        Optional<ApiKey> requestKey = apiKeyRepository.findById(identity);
+            @ApiParam(value = "The ApiKey's identity") @RequestParam String targetIdentity) {
+        Optional<ApiKey> requestKey = apiKeyRepository.findById(targetIdentity);
         Optional<Campus> requestCampus = campusRepository.findById(campusId);
 
         Responses responses = new Responses();
 
         if (requestKey.isEmpty())
-            return responses.notFound(String.format("Public key %s not found. Nothing to do here...%n", identity));
+            return responses
+                    .notFound(String.format("Public key %s not found. Nothing to do here...%n", targetIdentity));
 
         if (requestCampus.isEmpty())
             return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", campusId));
@@ -178,29 +179,30 @@ public class ApiKeyController {
 
         apiKeyRepository.save(apiKey);
 
-        return ResponseEntity.ok().body(String.format("Campus %d added to key %s.%n", campusId, identity));
+        return ResponseEntity.ok().body(String.format("Campus %d added to key %s.%n", campusId, targetIdentity));
     }
 
     /**
      * Removes permissions to access resources under a certain campus from an
      * ApiKey.
      * 
-     * @param campusId The id of the campus the resources belong to.
-     * @param identity The ApiKey's identity.
+     * @param campusId       The id of the campus the resources belong to.
+     * @param targetIdentity The ApiKey's identity.
      * @return {@link ResponseEntity}
      */
     @ApiOperation("Removes permissions to access resources under a certain campus from an ApiKey.")
     @PatchMapping(path = "/removeCampus")
     public ResponseEntity<String> removeCampusFromKey(
             @ApiParam(value = "The id of the campus to remove permissions to.") @RequestParam Long campusId,
-            @ApiParam(value = "The ApiKey's identity") @RequestParam String identity) {
-        Optional<ApiKey> requestKey = apiKeyRepository.findById(identity);
+            @ApiParam(value = "The ApiKey's identity") @RequestParam String targetIdentity) {
+        Optional<ApiKey> requestKey = apiKeyRepository.findById(targetIdentity);
         Optional<Campus> requestCampus = campusRepository.findById(campusId);
 
         Responses responses = new Responses();
 
         if (requestKey.isEmpty())
-            return responses.notFound(String.format("Public key %s not found. Nothing to do here...%n", identity));
+            return responses
+                    .notFound(String.format("Public key %s not found. Nothing to do here...%n", targetIdentity));
 
         if (requestCampus.isEmpty())
             return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", campusId));
@@ -217,9 +219,11 @@ public class ApiKeyController {
 
             apiKeyRepository.save(apiKey);
 
-            return ResponseEntity.ok().body(String.format("Campus %d removed from key %s.%n", campusId, identity));
+            return ResponseEntity.ok()
+                    .body(String.format("Campus %d removed from key %s.%n", campusId, targetIdentity));
         }
 
-        return responses.notFound(String.format("Key %s does not have rights on campus %d.%n", identity, campusId));
+        return responses
+                .notFound(String.format("Key %s does not have rights on campus %d.%n", targetIdentity, campusId));
     }
 }

@@ -34,8 +34,8 @@ import sweng.penelope.repositories.CampusRepository;
 @RequestMapping(path = "/api/birds")
 @Api(tags = "Bird operations")
 @ApiImplicitParams({
-        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true),
-        @ApiImplicitParam(paramType = "header", name = "KEY", required = true)
+        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true, dataType = "java.lang.String"),
+        @ApiImplicitParam(paramType = "header", name = "KEY", required = true, dataType = "java.lang.String")
 })
 public class BirdController {
     private Responses responses = new Responses();

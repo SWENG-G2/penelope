@@ -35,8 +35,8 @@ import sweng.penelope.services.StorageService;
 @RequestMapping(path = "/api/file")
 @Api(tags = "File upload operations")
 @ApiImplicitParams({
-        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true),
-        @ApiImplicitParam(paramType = "header", name = "KEY", required = true)
+        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true, dataType = "java.lang.String"),
+        @ApiImplicitParam(paramType = "header", name = "KEY", required = true, dataType = "java.lang.String")
 })
 public class FileUploadController {
     @Autowired
