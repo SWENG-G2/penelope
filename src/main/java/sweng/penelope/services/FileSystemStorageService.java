@@ -33,6 +33,10 @@ import sweng.penelope.xml.CampusesListXML;
 import sweng.penelope.xml.CommonXML;
 import sweng.penelope.xml.XMLConfiguration;
 
+/**
+ * <code>FileSystemStorageService</code> implements {@link StorageService} for file
+ * system and database operations.
+ */
 @Service
 public class FileSystemStorageService implements StorageService {
 
@@ -96,12 +100,6 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Stream<Path> loadAll() {
-        // Don't allow this
-        return null;
-    }
-
-    @Override
     public Path load(String type, String campusId, String fileName) {
         return Paths.get(baseString, type, campusId, fileName);
     }
@@ -119,11 +117,11 @@ public class FileSystemStorageService implements StorageService {
         return null;
     }
 
-    @Override
-    public void deleteAll() {
-        // Don't do this
-    }
-
+    /**
+     * Generates a {@link BirdXML}.
+     * @param id The {@link Bird} id.
+     * @return
+     */
     private BirdXML getBird(Long id) {
         BirdXML birdXML = null;
 

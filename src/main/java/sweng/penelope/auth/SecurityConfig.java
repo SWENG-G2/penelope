@@ -23,15 +23,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
             ApiKeyAuthenticationManager apiKeyAuthenticationManager) throws Exception {
+        // Instantiate filter
         ApiKeyFilter apiKeyFilter = new ApiKeyFilter(apiKeyAuthenticationManager, principalHeader, credentialsHeader);
 
+        // Add filter to chain
         httpSecurity.antMatcher(REQUEST_MATCHER.getPattern()).csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(apiKeyFilter)
                 .authorizeRequests()
                 .anyRequest()
-                .authenticated();
+                .authenticated(); // Only allow auth'd requests for supplied pattern.
 
         return httpSecurity.build();
     }

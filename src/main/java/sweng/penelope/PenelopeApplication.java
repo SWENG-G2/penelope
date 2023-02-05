@@ -18,6 +18,7 @@ public class PenelopeApplication {
 
 	@Bean
 	CommandLineRunner init(StorageService storageService) {
+		// Initialise storage service
 		return args -> storageService.init();
 	}
 }

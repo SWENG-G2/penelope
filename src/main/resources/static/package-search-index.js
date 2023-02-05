@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"sweng.penelope"},{"l":"sweng.penelope.auth"},{"l":"sweng.penelope.controllers"},{"l":"sweng.penelope.entities"},{"l":"sweng.penelope.repositories"},{"l":"sweng.penelope.services"},{"l":"sweng.penelope.xml"}];updateSearchResults();

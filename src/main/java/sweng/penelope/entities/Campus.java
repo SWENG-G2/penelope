@@ -20,6 +20,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <code>Campus</code> JPA Entity
+ */
 @Entity
 @Getter
 @Setter

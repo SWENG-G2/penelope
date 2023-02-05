@@ -2,7 +2,6 @@ package sweng.penelope.controllers;
 
 import java.nio.file.FileSystemException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -18,6 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import sweng.penelope.Responses;
 import sweng.penelope.auth.RSAUtils;
 import sweng.penelope.entities.ApiKey;
@@ -26,8 +30,16 @@ import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.CampusRepository;
 import sweng.penelope.services.StorageService;
 
+/**
+ * <code>ApiKeyController</code> handles all APIKeys endpoints.
+ */
 @Controller
 @RequestMapping(path = "/api/apikeys")
+@Api(tags = "ApiKey operations")
+@ApiImplicitParams({
+        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true, dataType = "java.lang.String"),
+        @ApiImplicitParam(paramType = "header", name = "KEY", required = true, dataType = "java.lang.String")
+})
 public class ApiKeyController {
     @Autowired
     private ApiKeyRepository apiKeyRepository;
@@ -39,6 +51,13 @@ public class ApiKeyController {
     private static final String[] CHARS = "abcdefghijklmnoprstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     private static final int IDENTITY_LENGTH = 10;
 
+    /**
+     * Generates a secure random {@link String}.
+     * 
+     * @param length       The desired length for the string.
+     * @param secureRandom A {@link SecureRandom} instance.
+     * @return The random {@link String}.
+     */
     private String generateString(int length, SecureRandom secureRandom) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < length; i++) {
@@ -48,8 +67,18 @@ public class ApiKeyController {
         return builder.toString();
     }
 
+    /**
+     * ApiKey creation endpoint.
+     * 
+     * @param admin     Whether the new key should have admin priviledges.
+     * @param ownerName Human friendly name of the key's owner.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Creates a new ApiKey")
     @PostMapping(path = "/new")
-    public ResponseEntity<String> createNewApiKey(@RequestParam Boolean admin, @RequestParam String ownerName) {
+    public ResponseEntity<String> createNewApiKey(
+            @ApiParam(value = "Whether the new key should have admin priviledges.") @RequestParam Boolean admin,
+            @ApiParam(value = "Human friendly name of the key's owner.") @RequestParam String ownerName) {
         ApiKey apiKey = new ApiKey();
         apiKey.setAdmin(admin);
         apiKey.setOwnerName(ownerName);
@@ -59,6 +88,7 @@ public class ApiKeyController {
 
             String identity;
 
+            // Make sure identity is unique
             while (true) {
                 identity = generateString(IDENTITY_LENGTH, secureRandom);
 
@@ -68,6 +98,7 @@ public class ApiKeyController {
 
             KeyPair keyPair = RSAUtils.generateKeys();
 
+            // Store key
             if (!storageService.storeKey(keyPair.getPrivate(), identity))
                 throw new FileSystemException("Could not store key");
 
@@ -78,6 +109,7 @@ public class ApiKeyController {
 
             apiKeyRepository.save(apiKey);
 
+            // Reply with identity:publick key
             return ResponseEntity.ok().body(String.format("%s:%s%n", identity, publicKeyBase64));
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,9 +117,17 @@ public class ApiKeyController {
         }
     }
 
+    /**
+     * ApiKey removal endpoint.
+     * 
+     * @param targetIdentity Identity corresponding to the ApiKey to remove
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Removes an existing ApiKey")
     @DeleteMapping(path = "/remove")
-    public ResponseEntity<String> removeApiKey(@RequestParam String identity) {
-        Optional<ApiKey> requestedKeyToBeDeleted = apiKeyRepository.findById(identity);
+    public ResponseEntity<String> removeApiKey(
+            @ApiParam(value = "Identity corresponding to the ApiKey to remove.") @RequestParam String targetIdentity) {
+        Optional<ApiKey> requestedKeyToBeDeleted = apiKeyRepository.findById(targetIdentity);
 
         if (requestedKeyToBeDeleted.isPresent()) {
             ApiKey keyToBeDeleted = requestedKeyToBeDeleted.get();
@@ -95,25 +135,36 @@ public class ApiKeyController {
             if (storageService.removeKey(keyToBeDeleted.getIdentity())) {
                 apiKeyRepository.delete(keyToBeDeleted);
 
-                return ResponseEntity.ok().body(String.format("Key %s deleted.%n", identity));
+                return ResponseEntity.ok().body(String.format("Key %s deleted.%n", targetIdentity));
             } else {
                 return ResponseEntity.internalServerError().build();
             }
         }
 
         Responses responses = new Responses();
-        return responses.notFound(String.format("Key %s was not found. Nothing to do here...%n", identity));
+        return responses.notFound(String.format("Key %s was not found. Nothing to do here...%n", targetIdentity));
     }
 
+    /**
+     * Grants permissions to access resources under a certain campus to an ApiKey.
+     * 
+     * @param campusId       The id of the campus the resources belong to.
+     * @param targetIdentity The ApiKey's identity.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Grants permissions to access resources under a certain campus to an ApiKey.")
     @PatchMapping(path = "/addCampus")
-    public ResponseEntity<String> addCampusToKey(@RequestParam Long campusId, @RequestParam String identity) {
-        Optional<ApiKey> requestKey = apiKeyRepository.findById(identity);
+    public ResponseEntity<String> addCampusToKey(
+            @ApiParam(value = "The id of the campus the resources belong to") @RequestParam Long campusId,
+            @ApiParam(value = "The ApiKey's identity") @RequestParam String targetIdentity) {
+        Optional<ApiKey> requestKey = apiKeyRepository.findById(targetIdentity);
         Optional<Campus> requestCampus = campusRepository.findById(campusId);
 
         Responses responses = new Responses();
 
         if (requestKey.isEmpty())
-            return responses.notFound(String.format("Public key %s not found. Nothing to do here...%n", identity));
+            return responses
+                    .notFound(String.format("Public key %s not found. Nothing to do here...%n", targetIdentity));
 
         if (requestCampus.isEmpty())
             return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", campusId));
@@ -128,18 +179,30 @@ public class ApiKeyController {
 
         apiKeyRepository.save(apiKey);
 
-        return ResponseEntity.ok().body(String.format("Campus %d added to key %s.%n", campusId, identity));
+        return ResponseEntity.ok().body(String.format("Campus %d added to key %s.%n", campusId, targetIdentity));
     }
 
+    /**
+     * Removes permissions to access resources under a certain campus from an
+     * ApiKey.
+     * 
+     * @param campusId       The id of the campus the resources belong to.
+     * @param targetIdentity The ApiKey's identity.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Removes permissions to access resources under a certain campus from an ApiKey.")
     @PatchMapping(path = "/removeCampus")
-    public ResponseEntity<String> removeCampusFromKey(@RequestParam Long campusId, @RequestParam String identity) {
-        Optional<ApiKey> requestKey = apiKeyRepository.findById(identity);
+    public ResponseEntity<String> removeCampusFromKey(
+            @ApiParam(value = "The id of the campus to remove permissions to.") @RequestParam Long campusId,
+            @ApiParam(value = "The ApiKey's identity") @RequestParam String targetIdentity) {
+        Optional<ApiKey> requestKey = apiKeyRepository.findById(targetIdentity);
         Optional<Campus> requestCampus = campusRepository.findById(campusId);
 
         Responses responses = new Responses();
 
         if (requestKey.isEmpty())
-            return responses.notFound(String.format("Public key %s not found. Nothing to do here...%n", identity));
+            return responses
+                    .notFound(String.format("Public key %s not found. Nothing to do here...%n", targetIdentity));
 
         if (requestCampus.isEmpty())
             return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", campusId));
@@ -156,9 +219,11 @@ public class ApiKeyController {
 
             apiKeyRepository.save(apiKey);
 
-            return ResponseEntity.ok().body(String.format("Campus %d removed from key %s.%n", campusId, identity));
+            return ResponseEntity.ok()
+                    .body(String.format("Campus %d removed from key %s.%n", campusId, targetIdentity));
         }
 
-        return responses.notFound(String.format("Key %s does not have rights on campus %d.%n", identity, campusId));
+        return responses
+                .notFound(String.format("Key %s does not have rights on campus %d.%n", targetIdentity, campusId));
     }
 }

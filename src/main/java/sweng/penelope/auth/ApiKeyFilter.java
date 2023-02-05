@@ -5,11 +5,22 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
+/**
+ * <code>ApiKeyFilter</code> is the filter used to extrapolate APIKeys
+ * information from request headers.
+ */
 public class ApiKeyFilter extends AbstractPreAuthenticatedProcessingFilter {
 
     private final String principalHeader;
     private final String credentialsHeader;
 
+    /**
+     * <code>ApiKeyFilter</code> constructor, all parameters autowired.
+     * 
+     * @param authenticationManager
+     * @param principalHeader
+     * @param credentialsHeader
+     */
     public ApiKeyFilter(AuthenticationManager authenticationManager, String principalHeader, String credentialsHeader) {
         super.setAuthenticationManager(authenticationManager);
 

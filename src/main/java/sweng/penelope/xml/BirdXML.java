@@ -1,10 +1,10 @@
 package sweng.penelope.xml;
 
-import java.nio.file.Path;
-
 import org.dom4j.Element;
-import org.springframework.core.env.Environment;
 
+/**
+ * <code>BirdXML</code> handles bird xml creation.
+ */
 public class BirdXML extends CommonXML {
         private static final String HERO_SLIDE_HEIGHT = "485";
         private static final String HERO_IMAGE_CIRCLE_RADIUS = "175";
@@ -15,6 +15,11 @@ public class BirdXML extends CommonXML {
 
         private String birdName;
 
+        /**
+         * <code>BirdXML</code> constructor.
+         * 
+         * @param xmlConfiguration {@link XMLConfiguration} with the required xml info.
+         */
         public BirdXML(XMLConfiguration xmlConfiguration) {
                 super(xmlConfiguration);
 
@@ -22,19 +27,11 @@ public class BirdXML extends CommonXML {
         }
 
         /**
-         * Add a slide to the presentation.
+         * Adds the hero slide to the bird xml.
          * 
-         * @param width  Slide width
-         * @param height Slide height
-         * @param title  Slide title
+         * @param audioURL URL to the bird sound resource.
+         * @param imageURL URL to the bird hero image resource.
          */
-        public void addSlide(String width, String height, String title) {
-                presentation.addElement("slide").addAttribute(WIDTH, width).addAttribute(HEIGHT, height)
-                                .addAttribute("title", title);
-
-                incrementNumSlides();
-        }
-
         public void addHeroSlide(String audioURL, String imageURL) {
                 // Create slide
                 Element heroSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
@@ -69,6 +66,12 @@ public class BirdXML extends CommonXML {
                                 .addAttribute(BORDER_COLOUR, DARK_GRAY);
         }
 
+        /**
+         * Add the "about me" slide to the bird xml.
+         * 
+         * @param aboutMeVideoURL URL to the bird video.
+         * @param aboutMe         Section text content.
+         */
         public void addAboutMe(String aboutMeVideoURL, String aboutMe) {
                 // Create slide
                 Element aboutMeSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
@@ -88,6 +91,12 @@ public class BirdXML extends CommonXML {
                                 .addText(aboutMe);
         }
 
+        /**
+         * Adds the "diet" slide to the bird xml.
+         * 
+         * @param dietImageURL URL to the bird diet image.
+         * @param diet         Section text content.
+         */
         public void addDiet(String dietImageURL, String diet) {
                 // Create slide
                 Element dietSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
@@ -107,6 +116,12 @@ public class BirdXML extends CommonXML {
                                 .addText(diet);
         }
 
+        /**
+         * Adds the "location" slide to the bird xml.
+         * 
+         * @param locationImageURL URL to the bird location image.
+         * @param location         Section text content.
+         */
         public void addLocation(String locationImageURL, String location) {
                 // Create slide
                 Element dietSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
