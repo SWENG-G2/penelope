@@ -86,6 +86,15 @@ public class FileUploadController {
         return ResponseEntity.ok("null");
     }
 
+    /**
+     * Handles file uploading operations.
+     * 
+     * @param file     The uploaded file
+     * @param type     The file type (image, video, audio)
+     * @param process  Whether the file (image only) should be made into a round png
+     * @param campusId The ID of the campus the resource belongs to
+     * @return {@link ResponseEntity}
+     */
     @PostMapping(path = "{campusId}/new")
     @ApiOperation("Stores the uploaded file")
     public ResponseEntity<String> handleFileUpload(@ApiParam("The file to upload") @RequestPart MultipartFile file,
