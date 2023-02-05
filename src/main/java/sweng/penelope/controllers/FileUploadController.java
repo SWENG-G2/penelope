@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.annotations.Api;
@@ -85,25 +86,27 @@ public class FileUploadController {
         return ResponseEntity.ok("null");
     }
 
-    @PostMapping("{campusId}/new")
+    @PostMapping(path = "{campusId}/new")
     @ApiOperation("Stores the uploaded file")
-    public ResponseEntity<String> handleFileUpload(@RequestParam MultipartFile file,
-            @RequestParam String type,
-            @RequestParam(required = false) boolean process, @PathVariable Long campusId) {
+    public ResponseEntity<String> handleFileUpload(@ApiParam("The file to upload") @RequestPart MultipartFile file,
+            @ApiParam(value = "The file type", allowableValues = "image, audio, video") @RequestParam String type,
+            @ApiParam("Whether the file (image only) should be made into a round png") @RequestParam(required = false) boolean process,
+            @ApiParam("The ID of the campus the resource belongs to") @PathVariable Long campusId) {
         if ((type.equals("audio") || type.equals("video") || type.equals("image")) && file != null) {
             String originalfileName = file.getOriginalFilename();
             if (originalfileName != null && !originalfileName.contains("..")) {
+                // Get stripped file name
                 String fileName = Paths.get(originalfileName).getFileName().toString();
 
                 CacheUtils.evictCache(cacheManager, CacheUtils.ASSETS, fileName);
 
                 if (StringUtils.countOccurrencesOf(fileName, ".") > 1)
                     return ResponseEntity.badRequest().body("File name connot contain dots");
-                if (type.equals("image") && process)
+                if (type.equals("image") && process) // Make round PNG
                     return processImage(file, campusId.toString(), fileName);
-                else if (storageService.store(type, campusId.toString(), file))
+                else if (storageService.store(type, campusId.toString(), file)) // Store
                     return ResponseEntity.ok().body(String.format("%s/%s/%s", type, campusId.toString(), fileName));
-                else
+                else // Something went wrong
                     return ResponseEntity.internalServerError().body("Could not store file.");
             }
             return ResponseEntity.badRequest().body("File name cannot contain \"..\" and cannot be null");
