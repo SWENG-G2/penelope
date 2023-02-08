@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -129,20 +131,15 @@ public class ApiKeyController {
             @ApiParam(value = "Identity corresponding to the ApiKey to remove.") @RequestParam String targetIdentity) {
         Optional<ApiKey> requestedKeyToBeDeleted = apiKeyRepository.findById(targetIdentity);
 
-        if (requestedKeyToBeDeleted.isPresent()) {
-            ApiKey keyToBeDeleted = requestedKeyToBeDeleted.get();
-
+        return requestedKeyToBeDeleted.map(keyToBeDeleted -> {
             if (storageService.removeKey(keyToBeDeleted.getIdentity())) {
                 apiKeyRepository.delete(keyToBeDeleted);
 
                 return ResponseEntity.ok().body(String.format("Key %s deleted.%n", targetIdentity));
             } else {
-                return ResponseEntity.internalServerError().build();
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
             }
-        }
-
-        Responses responses = new Responses();
-        return responses.notFound(String.format("Key %s was not found. Nothing to do here...%n", targetIdentity));
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     /**
@@ -160,26 +157,17 @@ public class ApiKeyController {
         Optional<ApiKey> requestKey = apiKeyRepository.findById(targetIdentity);
         Optional<Campus> requestCampus = campusRepository.findById(campusId);
 
-        Responses responses = new Responses();
+        return requestKey.map(apiKey -> requestCampus.map(campus -> {
+            Set<Campus> campusesSet = apiKey.getCampuses();
+            campusesSet.add(campus);
 
-        if (requestKey.isEmpty())
-            return responses
-                    .notFound(String.format("Public key %s not found. Nothing to do here...%n", targetIdentity));
+            apiKey.setCampuses(campusesSet);
 
-        if (requestCampus.isEmpty())
-            return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", campusId));
+            apiKeyRepository.save(apiKey);
 
-        ApiKey apiKey = requestKey.get();
-        Campus campus = requestCampus.get();
-
-        Set<Campus> campusesSet = apiKey.getCampuses();
-        campusesSet.add(campus);
-
-        apiKey.setCampuses(campusesSet);
-
-        apiKeyRepository.save(apiKey);
-
-        return ResponseEntity.ok().body(String.format("Campus %d added to key %s.%n", campusId, targetIdentity));
+            return ResponseEntity.ok().body(String.format("Campus %d added to key %s.%n", campusId, targetIdentity));
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     /**
@@ -198,32 +186,22 @@ public class ApiKeyController {
         Optional<ApiKey> requestKey = apiKeyRepository.findById(targetIdentity);
         Optional<Campus> requestCampus = campusRepository.findById(campusId);
 
-        Responses responses = new Responses();
+        return requestKey.map(apiKey -> requestCampus.map(campus -> {
+            Set<Campus> campusesSet = apiKey.getCampuses();
 
-        if (requestKey.isEmpty())
-            return responses
-                    .notFound(String.format("Public key %s not found. Nothing to do here...%n", targetIdentity));
+            if (campusesSet.contains(campus)) {
+                campusesSet.remove(campus);
 
-        if (requestCampus.isEmpty())
-            return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", campusId));
+                apiKey.setCampuses(campusesSet);
 
-        ApiKey apiKey = requestKey.get();
-        Campus campus = requestCampus.get();
+                apiKeyRepository.save(apiKey);
 
-        Set<Campus> campusesSet = apiKey.getCampuses();
+                return ResponseEntity.ok()
+                        .body(String.format("Campus %d removed from key %s.%n", campusId, targetIdentity));
+            }
 
-        if (campusesSet.contains(campus)) {
-            campusesSet.remove(campus);
-
-            apiKey.setCampuses(campusesSet);
-
-            apiKeyRepository.save(apiKey);
-
-            return ResponseEntity.ok()
-                    .body(String.format("Campus %d removed from key %s.%n", campusId, targetIdentity));
-        }
-
-        return responses
-                .notFound(String.format("Key %s does not have rights on campus %d.%n", targetIdentity, campusId));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

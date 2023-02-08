@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -84,8 +86,7 @@ public class BirdController {
 
         Optional<Campus> campusRequest = campusRepository.findById(campusId);
 
-        if (campusRequest.isPresent()) {
-            Campus campus = campusRequest.get();
+        return campusRequest.map(campus -> {
             String author = ControllerUtils.getAuthorName(authentication, apiKeyRepository);
 
             if (name.length() > 20)
@@ -100,8 +101,7 @@ public class BirdController {
             CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, campusId);
 
             return ResponseEntity.ok().body(String.format("Bird \"%s\" created with id %d%n", name, bird.getId()));
-        } else
-            return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", campusId));
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     /**
@@ -198,16 +198,13 @@ public class BirdController {
             @ApiParam(value = "ID of the campus the bird belongs to") @PathVariable Long campusId) {
         Optional<Bird> requestDuck = birdRepository.findById(id);
 
-        if (requestDuck.isPresent()) {
-            Bird bird = requestDuck.get();
+        return requestDuck.map(duck -> {
+            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, duck.getCampus().getId());
+            CacheUtils.evictCache(cacheManager, CacheUtils.BIRDS, duck.getId());
 
-            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, bird.getCampus().getId());
-            CacheUtils.evictCache(cacheManager, CacheUtils.BIRDS, bird.getId());
-
-            birdRepository.delete(bird);
+            birdRepository.delete(duck);
 
             return ResponseEntity.ok().body(String.format("Bird %d removed from database.%n", id));
-        }
-        return responses.notFound(String.format("Bird %d not found. Nothing to do here...%n", id));
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

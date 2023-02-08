@@ -1,7 +1,10 @@
 package sweng.penelope.controllers;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -75,13 +79,12 @@ public class CampusController {
     @ApiOperation("Deletes a campus")
     @DeleteMapping(path = "/remove")
     public ResponseEntity<String> deleteCampus(@ApiParam("The cammpus ID") @RequestParam Long id) {
-        if (campusRepository.existsById(id)) {
-            campusRepository.deleteById(id);
+        Optional<Campus> requestCampus = campusRepository.findById(id);
 
-            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES_LIST, null);
+        return requestCampus.map(campus -> {
+            campusRepository.delete(campus);
 
-            return responses.ok(String.format("Campus %d deleted.%n", id));
-        } else
-            return responses.notFound(String.format("Campus %d not found. Nothing to do here...%n", id));
+            return ResponseEntity.ok(String.format("Campus %d deleted.%n", id));
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

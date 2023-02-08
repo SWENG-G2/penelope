@@ -19,8 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.HtmlUtils;
 
 import sweng.penelope.entities.Bird;
@@ -34,7 +36,8 @@ import sweng.penelope.xml.CommonXML;
 import sweng.penelope.xml.XMLConfiguration;
 
 /**
- * <code>FileSystemStorageService</code> implements {@link StorageService} for file
+ * <code>FileSystemStorageService</code> implements {@link StorageService} for
+ * file
  * system and database operations.
  */
 @Service
@@ -119,17 +122,16 @@ public class FileSystemStorageService implements StorageService {
 
     /**
      * Generates a {@link BirdXML}.
+     * 
      * @param id The {@link Bird} id.
      * @return
      */
     private BirdXML getBird(Long id) {
-        BirdXML birdXML = null;
-
         Optional<Bird> requestBird = birdRepository.findById(id);
-        if (requestBird.isPresent()) {
-            Bird bird = requestBird.get();
+
+        return requestBird.map(bird -> {
             XMLConfiguration xmlConfiguration = new XMLConfiguration(bird.getAuthor(), bird.getName(), id);
-            birdXML = new BirdXML(xmlConfiguration);
+            BirdXML birdXML = new BirdXML(xmlConfiguration);
 
             String aboutMe = HtmlUtils.htmlEscape(bird.getAboutMe());
             String diet = HtmlUtils.htmlEscape(bird.getDiet());
@@ -139,9 +141,9 @@ public class FileSystemStorageService implements StorageService {
             birdXML.addAboutMe(bird.getAboutMeVideoURL(), aboutMe);
             birdXML.addDiet(bird.getDietImageURL(), diet);
             birdXML.addLocation(bird.getLocationImageURL(), location);
-        }
 
-        return birdXML;
+            return birdXML;
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     private CampusXML getCampus(Long id) {

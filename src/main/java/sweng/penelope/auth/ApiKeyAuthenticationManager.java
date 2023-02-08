@@ -105,20 +105,20 @@ public class ApiKeyAuthenticationManager implements AuthenticationManager {
             throw new BadCredentialsException("Authentication headers are missing");
 
         String[] principal = authentication.getPrincipal().toString().split("_");
-
         if (principal.length > 1) {
-
             Optional<ApiKey> requestKey = apiKeyRepository.findById(principal[0]);
-
-            if (requestKey.isPresent()) {
-                ApiKey apiKey = requestKey.get();
+            
+            requestKey.ifPresentOrElse(apiKey -> {
                 if (Boolean.FALSE.equals(apiKey.getAdmin())) {
-                    return handleNonAdminKey(authentication, apiKey, principal[1]);
+                    handleNonAdminKey(authentication, apiKey, principal[1]);
                 } else {
-                    return verifyCredentials(authentication, apiKey);
+                    verifyCredentials(authentication, apiKey);
                 }
-            } else
+            }, () -> {
                 throw new UsernameNotFoundException("Could not find apikey");
+            });
+
+            return authentication;
         }
         return authentication;
     }
