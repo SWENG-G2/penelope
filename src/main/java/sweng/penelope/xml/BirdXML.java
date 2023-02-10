@@ -9,6 +9,7 @@ public class BirdXML extends CommonXML {
         private static final String HERO_SLIDE_HEIGHT = "485";
         private static final String HERO_IMAGE_CIRCLE_RADIUS = "175";
         private static final String HERO_IMAGE_WIDTH = "1700";
+        private static final String TEXT_WIDTH = "1880";
 
         // Attributes
         private static final String URL = "url";
@@ -44,7 +45,8 @@ public class BirdXML extends CommonXML {
                 // Title text
                 heroSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "25")
                                 .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT)
-                                .addAttribute(FONT_SIZE, FONT_SIZE_TITLE_MD)
+                                .addAttribute(FONT_SIZE, FONT_SIZE_TITLE_MD).addAttribute(WIDTH, MATCH_PARENT)
+                                .addAttribute(HEIGHT, WRAP_CONTENT)
                                 .addText(birdName);
                 // Title audio
                 heroSlide.addElement("audio").addAttribute(URL, audioURL).addAttribute("loop", "false")
@@ -87,7 +89,8 @@ public class BirdXML extends CommonXML {
                 // Add description
                 aboutMeSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "250")
                                 .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT)
-                                .addAttribute(FONT_SIZE, FONT_SIZE_BODY)
+                                .addAttribute(FONT_SIZE, FONT_SIZE_BODY).addAttribute(WIDTH, TEXT_WIDTH)
+                                .addAttribute(HEIGHT, WRAP_CONTENT)
                                 .addText(aboutMe);
         }
 
@@ -112,7 +115,8 @@ public class BirdXML extends CommonXML {
                 // Add diet
                 dietSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "210")
                                 .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT)
-                                .addAttribute(FONT_SIZE, FONT_SIZE_BODY)
+                                .addAttribute(FONT_SIZE, FONT_SIZE_BODY).addAttribute(WIDTH, TEXT_WIDTH)
+                                .addAttribute(HEIGHT, WRAP_CONTENT)
                                 .addText(diet);
         }
 
@@ -137,7 +141,8 @@ public class BirdXML extends CommonXML {
                 // Add diet
                 dietSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "210")
                                 .addAttribute(COLOUR, BLACK).addAttribute(FONT_NAME, FONT)
-                                .addAttribute(FONT_SIZE, FONT_SIZE_BODY)
+                                .addAttribute(FONT_SIZE, FONT_SIZE_BODY).addAttribute(WIDTH, TEXT_WIDTH)
+                                .addAttribute(HEIGHT, WRAP_CONTENT)
                                 .addText(location);
         }
 }

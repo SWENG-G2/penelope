@@ -53,6 +53,8 @@ public class CommonXML {
     protected static final String WRAP_CONTENT_CLIENT_SIDE = "-1";
     protected static final String CENTER_IN_PARENT = "-2";
     protected static final String END_OF_PARENT = "-3";
+    protected static final String MATCH_PARENT = "-4";
+    protected static final String WRAP_CONTENT = "-5";
 
     private XMLConfiguration xmlConfiguration;
 

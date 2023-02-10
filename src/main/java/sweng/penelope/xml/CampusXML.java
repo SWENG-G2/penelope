@@ -48,12 +48,13 @@ public class CampusXML extends CommonXML {
         // Title
         duckSlide.addElement("text").addAttribute(FONT_NAME, FONT).addAttribute(FONT_SIZE, FONT_SIZE_TITLE_SM)
                 .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "560") // (480 + 40 (image)) + 40
-                .addAttribute(Y_COORDINATE, "30")
+                .addAttribute(Y_COORDINATE, "30").addAttribute(WIDTH, MATCH_PARENT).addAttribute(HEIGHT, WRAP_CONTENT)
                 .addText(name);
 
         // Description
         duckSlide.addElement("text").addAttribute(FONT_NAME, FONT).addAttribute(FONT_SIZE, FONT_SIZE_BODY)
-                .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "560")
+                .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "560").addAttribute(WIDTH, "1300")
+                .addAttribute(HEIGHT, WRAP_CONTENT)
                 .addAttribute(Y_COORDINATE, "68") // 28 (FONT_SIZE_TITLE_SM) + 2*20 (FONT_SIZE_BODY)
                 .addText(formatDescription(description));
 
