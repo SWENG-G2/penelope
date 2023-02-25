@@ -44,5 +44,27 @@ public class Campus {
     private Set<Bird> birds = new HashSet<>();
 
     @ManyToMany(mappedBy = "campuses")
-    private Set<ApiKey> apiKeys = new HashSet<>();
+    private Set<DataManager> dataManagers = new HashSet<>();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Campus))
+            return false;
+
+        Campus c = (Campus) obj;
+
+        if (c.getId().equals(id) && c.getName().equals(name) && c.getAuthor().equals(author)
+                && c.getDate().equals(date))
+            return true;
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        if (id != null)
+            return id.hashCode();
+    
+        return super.hashCode();
+    }
 }
