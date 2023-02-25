@@ -14,6 +14,9 @@ import javax.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <code>DataManager</code> JPA Entity
+ */
 @Entity
 @Getter
 @Setter

@@ -90,7 +90,7 @@ public class DataManagerController {
      * DataManager.
      * 
      * @param username The DataManager's username.
-     * @param campusId The id of the campus the resources belong to.
+     * @param campusID The id of the campus the resources belong to.
      * @return {@link ResponseEntity}
      */
     @ApiOperation("Grants permissions to access resources under a certain campus to a DataManager.")
@@ -116,7 +116,7 @@ public class DataManagerController {
      * DataManager.
      * 
      * @param username The DataManager's username.
-     * @param campusId The id of the campus the resources belong to.
+     * @param campusID The id of the campus the resources belong to.
      * @return {@link ResponseEntity}
      */
     @ApiOperation("Removes permissions to access resources under a certain campus from a DataManager.")

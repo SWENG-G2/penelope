@@ -64,9 +64,6 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
-<li class="circle">sweng.penelope.entities.<a href="sweng/penelope/entities/ApiKey.html" class="type-name-link" title="class in sweng.penelope.entities">ApiKey</a></li>
-<li class="circle">sweng.penelope.auth.<a href="sweng/penelope/auth/ApiKeyAuthenticationManager.html" class="type-name-link" title="class in sweng.penelope.auth">ApiKeyAuthenticationManager</a> (implements org.springframework.security.authentication.AuthenticationManager)</li>
-<li class="circle">sweng.penelope.controllers.<a href="sweng/penelope/controllers/ApiKeyController.html" class="type-name-link" title="class in sweng.penelope.controllers">ApiKeyController</a></li>
 <li class="circle">sweng.penelope.entities.<a href="sweng/penelope/entities/Bird.html" class="type-name-link" title="class in sweng.penelope.entities">Bird</a></li>
 <li class="circle">sweng.penelope.controllers.<a href="sweng/penelope/controllers/BirdController.html" class="type-name-link" title="class in sweng.penelope.controllers">BirdController</a></li>
 <li class="circle">sweng.penelope.controllers.<a href="sweng/penelope/controllers/CacheUtils.html" class="type-name-link" title="class in sweng.penelope.controllers">CacheUtils</a></li>
@@ -80,6 +77,8 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">sweng.penelope.controllers.<a href="sweng/penelope/controllers/ControllerUtils.html" class="type-name-link" title="class in sweng.penelope.controllers">ControllerUtils</a></li>
+<li class="circle">sweng.penelope.entities.<a href="sweng/penelope/entities/DataManager.html" class="type-name-link" title="class in sweng.penelope.entities">DataManager</a></li>
+<li class="circle">sweng.penelope.controllers.<a href="sweng/penelope/controllers/DataManagerController.html" class="type-name-link" title="class in sweng.penelope.controllers">DataManagerController</a></li>
 <li class="circle">sweng.penelope.controllers.<a href="sweng/penelope/controllers/FileDownloadController.html" class="type-name-link" title="class in sweng.penelope.controllers">FileDownloadController</a></li>
 <li class="circle">sweng.penelope.services.<a href="sweng/penelope/services/FileSystemStorageService.html" class="type-name-link" title="class in sweng.penelope.services">FileSystemStorageService</a> (implements sweng.penelope.services.<a href="sweng/penelope/services/StorageService.html" title="interface in sweng.penelope.services">StorageService</a>)</li>
 <li class="circle">sweng.penelope.controllers.<a href="sweng/penelope/controllers/FileUploadController.html" class="type-name-link" title="class in sweng.penelope.controllers">FileUploadController</a></li>
@@ -87,11 +86,12 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter (implements org.springframework.context.ApplicationEventPublisherAware)
 <ul>
-<li class="circle">sweng.penelope.auth.<a href="sweng/penelope/auth/ApiKeyFilter.html" class="type-name-link" title="class in sweng.penelope.auth">ApiKeyFilter</a></li>
+<li class="circle">sweng.penelope.auth.<a href="sweng/penelope/auth/UserFilter.html" class="type-name-link" title="class in sweng.penelope.auth">UserFilter</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="circle">sweng.penelope.controllers.<a href="sweng/penelope/controllers/KeyPairController.html" class="type-name-link" title="class in sweng.penelope.controllers">KeyPairController</a></li>
 <li class="circle">sweng.penelope.<a href="sweng/penelope/PenelopeApplication.html" class="type-name-link" title="class in sweng.penelope">PenelopeApplication</a></li>
 <li class="circle">sweng.penelope.<a href="sweng/penelope/Responses.html" class="type-name-link" title="class in sweng.penelope">Responses</a></li>
 <li class="circle">sweng.penelope.auth.<a href="sweng/penelope/auth/RSAUtils.html" class="type-name-link" title="class in sweng.penelope.auth">RSAUtils</a></li>
@@ -115,6 +115,7 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
+<li class="circle">sweng.penelope.auth.<a href="sweng/penelope/auth/UserAuthenticationManager.html" class="type-name-link" title="class in sweng.penelope.auth">UserAuthenticationManager</a> (implements org.springframework.security.authentication.AuthenticationManager)</li>
 <li class="circle">sweng.penelope.xml.<a href="sweng/penelope/xml/XMLConfiguration.html" class="type-name-link" title="class in sweng.penelope.xml">XMLConfiguration</a></li>
 </ul>
 </li>
@@ -127,9 +128,9 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">org.springframework.data.repository.CrudRepository&lt;T,<wbr>ID&gt;
 <ul>
-<li class="circle">sweng.penelope.repositories.<a href="sweng/penelope/repositories/ApiKeyRepository.html" class="type-name-link" title="interface in sweng.penelope.repositories">ApiKeyRepository</a></li>
 <li class="circle">sweng.penelope.repositories.<a href="sweng/penelope/repositories/BirdRepository.html" class="type-name-link" title="interface in sweng.penelope.repositories">BirdRepository</a></li>
 <li class="circle">sweng.penelope.repositories.<a href="sweng/penelope/repositories/CampusRepository.html" class="type-name-link" title="interface in sweng.penelope.repositories">CampusRepository</a></li>
+<li class="circle">sweng.penelope.repositories.<a href="sweng/penelope/repositories/DataManagerRepository.html" class="type-name-link" title="interface in sweng.penelope.repositories">DataManagerRepository</a></li>
 </ul>
 </li>
 </ul>
