@@ -11,10 +11,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
-
+/**
+ * <code>KeyPairController</code> exposes the server's public key.
+ */
 @Controller
-@Api("Provides public key")
+@Api(tags = "Provides server's public key.")
 public class KeyPairController {
 
     @Autowired
@@ -25,10 +28,11 @@ public class KeyPairController {
 
     @GetMapping(path = "/key")
     @Cacheable(value = "key")
+    @ApiOperation("Exposes server's public key as a header 'Key'.")
     public ResponseEntity<String> getMethodName() {
         String key = Base64.getEncoder().encodeToString(serverKeyPair.getPublic().getEncoded());
 
         return ResponseEntity.ok().header(keyHeader, key).build();
     }
-    
+
 }

@@ -14,13 +14,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import sweng.penelope.entities.Campus;
 import sweng.penelope.entities.DataManager;
 import sweng.penelope.repositories.CampusRepository;
 import sweng.penelope.repositories.DataManagerRepository;
 
+/**
+ * <code>DataManagerController</code> handles all DataManager (user) endpoints.
+ */
 @Controller
 @RequestMapping(path = "/api/users")
+@Api(tags = "DataManager operations")
+@ApiImplicitParams({
+        @ApiImplicitParam(paramType = "header", name = "Credentials", required = true, dataType = "java.lang.String")
+})
 public class DataManagerController {
     @Autowired
     private DataManagerRepository dataManagerRepository;
@@ -30,9 +42,20 @@ public class DataManagerController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * DataManager creation endpoint.
+     * 
+     * @param username Human friendly name of the DataManager's owner (i.e. email).
+     * @param password DataManager's password.
+     * @param sysadmin Whether the new user should have sysadmin priviledges.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("DataManager creation endpoint.")
     @PostMapping(path = "/new")
-    public ResponseEntity<String> createNewUser(@RequestParam String username, @RequestParam String password,
-            @RequestParam(required = false) Boolean sysadmin) {
+    public ResponseEntity<String> createNewUser(
+            @ApiParam(value = "Human friendly name of the DataManager's owner (i.e. email).") @RequestParam String username,
+            @ApiParam(value = "DataManager's password.") @RequestParam String password,
+            @ApiParam("Whether the new user should have sysadmin priviledges.") @RequestParam(required = false) Boolean sysadmin) {
         DataManager user = new DataManager();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
@@ -45,8 +68,16 @@ public class DataManagerController {
         return ResponseEntity.ok().body("User created");
     }
 
+    /**
+     * DataManager removal endpoint.
+     * 
+     * @param username DataManager's username to remove.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("DataManager removal endpoint.")
     @DeleteMapping(path = "/remove")
-    public ResponseEntity<String> removeUser(@RequestParam String username) {
+    public ResponseEntity<String> removeUser(
+            @ApiParam(value = "DataManager's username to remove.") @RequestParam String username) {
         return dataManagerRepository.findById(username).map(user -> {
             dataManagerRepository.delete(user);
 
@@ -54,8 +85,19 @@ public class DataManagerController {
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Grants permissions to access resources under a certain campus to a
+     * DataManager.
+     * 
+     * @param username The DataManager's username.
+     * @param campusId The id of the campus the resources belong to.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Grants permissions to access resources under a certain campus to a DataManager.")
     @PatchMapping(path = "/addCampus")
-    public ResponseEntity<String> addCampusRight(@RequestParam String username, @RequestParam Long campusID) {
+    public ResponseEntity<String> addCampusRight(
+            @ApiParam(value = "The DataManager's username.") @RequestParam String username,
+            @ApiParam("The id of the campus the resources belong to.") @RequestParam Long campusID) {
         return dataManagerRepository.findById(username).map(user -> {
             return campusRepository.findById(campusID).map(campus -> {
                 Set<Campus> campuses = user.getCampuses();
@@ -69,8 +111,19 @@ public class DataManagerController {
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Removes permissions to access resources under a certain campus from a
+     * DataManager.
+     * 
+     * @param username The DataManager's username.
+     * @param campusId The id of the campus the resources belong to.
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Removes permissions to access resources under a certain campus from a DataManager.")
     @PatchMapping(path = "/removeCampus")
-    public ResponseEntity<String> removeCampusRight(@RequestParam String username, @RequestParam Long campusID) {
+    public ResponseEntity<String> removeCampusRight(
+            @ApiParam(value = "The DataManager's username.") @RequestParam String username,
+            @ApiParam("The id of the campus the resources belong to.") @RequestParam Long campusID) {
         return dataManagerRepository.findById(username).map(user -> {
             return campusRepository.findById(campusID).map(campus -> {
                 Set<Campus> campuses = user.getCampuses();
