@@ -78,6 +78,10 @@ public class CampusController {
         Optional<Campus> requestCampus = campusRepository.findById(id);
 
         return requestCampus.map(campus -> {
+            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, campus.getId());
+            // Campuses list should be regenerated
+            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES_LIST, null);
+
             campusRepository.delete(campus);
 
             return ResponseEntity.ok(String.format("Campus %d deleted.%n", id));
