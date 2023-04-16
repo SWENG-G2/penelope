@@ -197,40 +197,4 @@ public class FileSystemStorageService implements StorageService {
         }
         return null;
     }
-
-    @Override
-    public boolean storeKey(PrivateKey privateKey, String identity) {
-        Path destinationPath = Paths.get(keysBaseString, identity);
-        try {
-            Files.write(destinationPath, privateKey.getEncoded());
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @Override
-    public byte[] loadKey(String identity) {
-        Path sourcePath = Paths.get(keysBaseString, identity);
-        try {
-            return Files.readAllBytes(sourcePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new byte[0];
-        }
-    }
-
-    @Override
-    public boolean removeKey(String identity) {
-        Path sourcePath = Paths.get(keysBaseString, identity);
-
-        try {
-            Files.delete(sourcePath);
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }

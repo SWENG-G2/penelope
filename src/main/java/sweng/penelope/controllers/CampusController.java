@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiParam;
 import springfox.documentation.annotations.ApiIgnore;
 import sweng.penelope.Responses;
 import sweng.penelope.entities.Campus;
-import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.CampusRepository;
 
 /**
@@ -32,16 +31,13 @@ import sweng.penelope.repositories.CampusRepository;
 @Controller
 @RequestMapping(path = "/api/campus")
 @ApiImplicitParams({
-        @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true, dataType = "java.lang.String"),
-        @ApiImplicitParam(paramType = "header", name = "KEY", required = true, dataType = "java.lang.String")
+    @ApiImplicitParam(paramType = "header", name = "Credentials", required = true, dataType = "java.lang.String")
 })
 public class CampusController {
     private Responses responses = new Responses();
 
     @Autowired
     private CampusRepository campusRepository;
-    @Autowired
-    private ApiKeyRepository apiKeyRepository;
     @Autowired
     private CacheManager cacheManager;
 
@@ -57,7 +53,7 @@ public class CampusController {
     public ResponseEntity<String> newCampus(@ApiParam("The campus name") @RequestParam String name,
             @ApiIgnore Authentication authentication) {
         Campus campus = new Campus();
-        String author = ControllerUtils.getAuthorName(authentication, apiKeyRepository);
+        String author = ControllerUtils.getAuthorName(authentication);
         campus.setName(name);
         campus.setAuthor(author);
 

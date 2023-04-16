@@ -3,15 +3,11 @@ package sweng.penelope.auth;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.MGF1ParameterSpec;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
@@ -43,22 +39,6 @@ public class RSAUtils {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
         keyPairGenerator.initialize(KEY_SIZE);
         return keyPairGenerator.generateKeyPair();
-    }
-
-    /**
-     * Regenerates a {@link PrivateKey} object from a byte array.
-     * 
-     * @param privateKeyBytes The array containing key information
-     * @return {@link PrivateKey} contained in the byte array.
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeySpecException
-     */
-    public static PrivateKey regeneratePrivateKey(byte[] privateKeyBytes)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-        KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
-        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-
-        return keyFactory.generatePrivate(privateKeySpec);
     }
 
     /**

@@ -107,10 +107,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getAuthorName(org.springframework.security.core.Authentication,sweng.penelope.repositories.ApiKeyRepository)" class="member-name-link">getAuthorName</a><wbr>(org.springframework.security.core.Authentication&nbsp;authentication,
- <a href="../repositories/ApiKeyRepository.html" title="interface in sweng.penelope.repositories">ApiKeyRepository</a>&nbsp;apiKeyRepository)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getAuthorName(org.springframework.security.core.Authentication)" class="member-name-link">getAuthorName</a><wbr>(org.springframework.security.core.Authentication&nbsp;authentication)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Retrieves author's human friendly name from an <a href="../entities/ApiKey.html" title="class in sweng.penelope.entities"><code>ApiKey</code></a>.</div>
+<div class="block">Retrieves author's human friendly name from an <code>ApiKey</code>.</div>
 </div>
 </div>
 </div>
@@ -144,17 +143,15 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="getAuthorName(org.springframework.security.core.Authentication,sweng.penelope.repositories.ApiKeyRepository)">
+<section class="detail" id="getAuthorName(org.springframework.security.core.Authentication)">
 <h3>getAuthorName</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getAuthorName</span><wbr><span class="parameters">(org.springframework.security.core.Authentication&nbsp;authentication,
- <a href="../repositories/ApiKeyRepository.html" title="interface in sweng.penelope.repositories">ApiKeyRepository</a>&nbsp;apiKeyRepository)</span></div>
-<div class="block">Retrieves author's human friendly name from an <a href="../entities/ApiKey.html" title="class in sweng.penelope.entities"><code>ApiKey</code></a>.</div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getAuthorName</span><wbr><span class="parameters">(org.springframework.security.core.Authentication&nbsp;authentication)</span></div>
+<div class="block">Retrieves author's human friendly name from an <code>ApiKey</code>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>authentication</code> - <code>Authentication</code> autowired.</dd>
-<dd><code>apiKeyRepository</code> - <a href="../repositories/ApiKeyRepository.html" title="interface in sweng.penelope.repositories"><code>ApiKeyRepository</code></a>.</dd>
 <dt>Returns:</dt>
-<dd><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> the author name.</dd>
+<dd><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> the author's email.</dd>
 </dl>
 </section>
 </li>
