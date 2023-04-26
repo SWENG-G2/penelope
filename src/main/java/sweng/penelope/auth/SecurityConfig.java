@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -24,17 +25,17 @@ public class SecurityConfig {
             UserAuthenticationManager userAuthenticationManager, KeyPair serverKeyPair) throws Exception {
         // Instantiate filter
         UserFilter userFilter = new UserFilter(userAuthenticationManager, serverKeyPair, credentialsHeader);
-
-        // Add filter to chain
-        httpSecurity.authorizeHttpRequests().antMatchers("/api/users/validate").permitAll().and()
-                .antMatcher(REQUEST_MATCHER.getPattern()).csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+        httpSecurity.csrf().disable()
+                .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
+                        .antMatchers(REQUEST_MATCHER.getPattern()).authenticated())
                 .addFilter(userFilter)
-                .authorizeHttpRequests()
-                .anyRequest()
-                .authenticated(); // Only allow auth'd requests for supplied pattern
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().antMatchers("/api/users/validate");
     }
 }

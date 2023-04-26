@@ -49,7 +49,7 @@ import sweng.penelope.repositories.DataManagerRepository;
 @RequestMapping(path = "/api/users")
 @Api(tags = "DataManager operations")
 @ApiImplicitParams({
-        @ApiImplicitParam(paramType = "header", name = "Credentials", required = true, dataType = "java.lang.String")
+        @ApiImplicitParam(paramType = "header", name = "Credentials", value = "Authentication credentials. Format: <code>username=password=timestamp</code>. RSA encoded with server's public key.", required = true, dataType = "java.lang.String")
 })
 public class DataManagerController {
     @Autowired
@@ -170,20 +170,29 @@ public class DataManagerController {
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Verifies a user's credentials and provides their level of permission
+     * 
+     * @param headers Authentication credentials. Format:
+     *                <code>username=password=timestamp</code>. RSA encoded with
+     *                server's public key.
+     * @return An empty {@link ResponseEntity} with <code>Valid: boolean</code> and
+     *         <code>Admin: boolean</code> headers.
+     */
     @ApiOperation("Verifies a user's credentials and provides their level of permission")
-    @GetMapping(path = "/validate")
-    public ResponseEntity<Void> validateUser(@RequestHeader Map<String, String> headers) {
-        String credentials = headers.get(credentialsHeader);
-        System.out.println(headers.values());
-    
+    @PostMapping(path = "/validate")
+    public ResponseEntity<Void> validateUser(
+            @ApiIgnore @RequestHeader Map<String, String> headers) {
+        String credentials = headers.get(credentialsHeader.toLowerCase());
+
         String[] decryptedCredentials;
+        // Default headers
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set(validHeader, "false");
         httpHeaders.set(adminHeader, "false");
 
-        System.out.println(credentialsHeader);
-
         try {
+            // Decrypt credentials
             decryptedCredentials = RSAUtils.decrypt(serverKeyPair.getPrivate(), credentials).split("=");
 
             String username = decryptedCredentials[0];
@@ -192,17 +201,21 @@ public class DataManagerController {
             // Compare timestamp
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Europe/London"));
             ZonedDateTime sentAt = ZonedDateTime.parse(timestamp);
-            Duration delta = Duration.between(now, sentAt);
+            Duration delta = Duration.between(sentAt, now);
             if (delta.getSeconds() < 60) {
                 dataManagerRepository.findById(username).ifPresent(dataManager -> {
-                    if (passwordEncoder.matches(password, dataManager.getPassword()))
+                    // Verify credentials validity
+                    if (passwordEncoder.matches(password, dataManager.getPassword())) {
                         httpHeaders.set(validHeader, "true");
-
-                    if (dataManager.isSysadmin())
-                        httpHeaders.set(adminHeader, "true");
+                        // Verify permissions
+                        if (dataManager.isSysadmin())
+                            httpHeaders.set(adminHeader, "true");
+                    }
                 });
             }
         } catch (Exception exception) {
+            // Realistically not much we can do here.
+            // Log the exception and move on
             exception.printStackTrace();
         }
 

@@ -31,7 +31,7 @@ import sweng.penelope.repositories.CampusRepository;
 @Controller
 @RequestMapping(path = "/api/campus")
 @ApiImplicitParams({
-    @ApiImplicitParam(paramType = "header", name = "Credentials", required = true, dataType = "java.lang.String")
+    @ApiImplicitParam(paramType = "header", name = "Credentials", value = "Authentication credentials. Format: <code>username=password=timestamp</code>. RSA encoded with server's public key.", required = true, dataType = "java.lang.String")
 })
 public class CampusController {
     private Responses responses = new Responses();
