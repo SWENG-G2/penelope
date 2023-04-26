@@ -26,13 +26,14 @@ public class SecurityConfig {
         UserFilter userFilter = new UserFilter(userAuthenticationManager, serverKeyPair, credentialsHeader);
 
         // Add filter to chain
-        httpSecurity.antMatcher(REQUEST_MATCHER.getPattern()).csrf().disable()
+        httpSecurity.authorizeHttpRequests().antMatchers("/api/users/validate").permitAll().and()
+                .antMatcher(REQUEST_MATCHER.getPattern()).csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(userFilter)
-                .authorizeRequests()
+                .authorizeHttpRequests()
                 .anyRequest()
-                .authenticated(); // Only allow auth'd requests for supplied pattern.
+                .authenticated(); // Only allow auth'd requests for supplied pattern
 
         return httpSecurity.build();
     }
