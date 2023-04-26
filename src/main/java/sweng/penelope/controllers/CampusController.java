@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +32,7 @@ import sweng.penelope.repositories.CampusRepository;
 @Controller
 @RequestMapping(path = "/api/campus")
 @ApiImplicitParams({
-    @ApiImplicitParam(paramType = "header", name = "Credentials", value = "Authentication credentials. Format: <code>username=password=timestamp</code>. RSA encoded with server's public key.", required = true, dataType = "java.lang.String")
+        @ApiImplicitParam(paramType = "header", name = "Credentials", value = "Authentication credentials. Format: <code>username=password=timestamp</code>. RSA encoded with server's public key.", required = true, dataType = "java.lang.String")
 })
 public class CampusController {
     private Responses responses = new Responses();
@@ -64,6 +65,40 @@ public class CampusController {
         return responses
                 .ok(String.format("New campus \"%s\" (id: %d) stored in database.%n", name, campus.getId()));
 
+    }
+
+    /**
+     * Edits an existing campus' name
+     * 
+     * @param newName        The new campus name
+     * @param id             The campus ID
+     * @param authentication {@link Authentication} autowired
+     * @return {@link ResponseEntity}
+     */
+    @PatchMapping(path = "/edit")
+    @ApiOperation("Edits an existing campus' name")
+    public ResponseEntity<String> editCampus(@ApiParam("The new campus name") @RequestParam String newName,
+            @ApiParam("The campus ID") @RequestParam Long id, @ApiIgnore Authentication authentication) {
+        Optional<Campus> requestCampus = campusRepository.findById(id);
+
+        return requestCampus.map(campus -> {
+            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, campus.getId());
+            // Campuses list should be regenerated
+            CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES_LIST, null);
+
+            // Update authors list
+            String author = ControllerUtils.getAuthorName(authentication);
+            String currentAuthors = campus.getAuthor();
+            if (!currentAuthors.contains(author))
+                currentAuthors += ", " + author;
+
+            campus.setAuthor(currentAuthors);
+
+            campus.setName(newName);
+            campusRepository.save(campus);
+
+            return ResponseEntity.ok(String.format("Campus %d's name changed to \"%s\"", id, newName));
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     /**
