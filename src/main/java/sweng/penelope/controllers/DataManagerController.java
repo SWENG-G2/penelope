@@ -1,23 +1,19 @@
 package sweng.penelope.controllers;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -35,12 +31,15 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ResponseHeader;
 import springfox.documentation.annotations.ApiIgnore;
 import sweng.penelope.auth.RSAUtils;
 import sweng.penelope.entities.Campus;
 import sweng.penelope.entities.DataManager;
 import sweng.penelope.repositories.CampusRepository;
 import sweng.penelope.repositories.DataManagerRepository;
+import sweng.penelope.services.StorageService;
 
 /**
  * <code>DataManagerController</code> handles all DataManager (user) endpoints.
@@ -56,6 +55,8 @@ public class DataManagerController {
     private DataManagerRepository dataManagerRepository;
     @Autowired
     private CampusRepository campusRepository;
+    @Autowired
+    private StorageService storageService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -70,6 +71,12 @@ public class DataManagerController {
 
     @Value("${penelope.api-credentialsHeader}")
     private String credentialsHeader;
+
+    @Value("${penelope.api-campusesHeader}")
+    private String campusesHeader;
+
+    @Value("${penelope.campusesAll}")
+    private String campusesAll;
 
     /**
      * DataManager creation endpoint.
@@ -171,7 +178,7 @@ public class DataManagerController {
     }
 
     /**
-     * Verifies a user's credentials and provides their level of permission
+     * Verifies a user's credentials and provides their level of permission.
      * 
      * @param headers Authentication credentials. Format:
      *                <code>username=password=timestamp</code>. RSA encoded with
@@ -179,7 +186,11 @@ public class DataManagerController {
      * @return An empty {@link ResponseEntity} with <code>Valid: boolean</code> and
      *         <code>Admin: boolean</code> headers.
      */
-    @ApiOperation("Verifies a user's credentials and provides their level of permission")
+    @ApiOperation("Verifies a user's credentials and provides their level of permission.")
+    @ApiResponse(code = 200, message = "OK", responseHeaders = {
+            @ResponseHeader(name = "Admin", description = "Boolean, either admin credentials or not", response = Boolean.class),
+            @ResponseHeader(name = "Valid", description = "Boolean, either valid credentials or not", response = Boolean.class),
+            @ResponseHeader(name = "Campuses", description = "A string array of campuses ids (e.g. 1,2,3,4). -1 for admin users. Can be an empty String.", response = String.class) })
     @PostMapping(path = "/validate")
     public ResponseEntity<Void> validateUser(
             @ApiIgnore @RequestHeader Map<String, String> headers) {
@@ -207,9 +218,22 @@ public class DataManagerController {
                     // Verify credentials validity
                     if (passwordEncoder.matches(password, dataManager.getPassword())) {
                         httpHeaders.set(validHeader, "true");
-                        // Verify permissions
-                        if (dataManager.isSysadmin())
+                        // Verify admin permissions
+                        if (dataManager.isSysadmin()) {
                             httpHeaders.set(adminHeader, "true");
+                            httpHeaders.set(campusesHeader, campusesAll);
+                        } else { // Campus permissions
+                            Set<Campus> campuses = dataManager.getCampuses();
+                            StringBuilder campusesHeaderSB = new StringBuilder();
+
+                            campuses.forEach(campus -> campusesHeaderSB.append(String.format("%d,", campus.getId())));
+
+                            String campusesHeaderContent = Optional.ofNullable(campusesHeaderSB.toString())
+                                    .filter(s -> s.length() > 0)
+                                    .map(s -> s.substring(0, s.length() - 1)).orElse("");
+
+                            httpHeaders.set(campusesHeader, campusesHeaderContent);
+                        }
                     }
                 });
             }
@@ -220,5 +244,31 @@ public class DataManagerController {
         }
 
         return ResponseEntity.noContent().headers(httpHeaders).build();
+    }
+
+    /**
+     * Provides a list of all users and their campuses permissions.
+     * 
+     * Note: This is not in the FileDownloadController because
+     * that controller handles publicly available endpoints.
+     * This endpoint needs admin access, claimed by making a request to (most)
+     * <code>/api/users</code> endpoint and verified by the
+     * UserAuthenticationManager.
+     * Yes this is reduntant logic, /shrugs.
+     * 
+     * @return {@link ResponseEntity}
+     */
+    @ApiOperation("Provides a list of all users and their campuses permissions")
+    @GetMapping("/list")
+    public ResponseEntity<Resource> serveUsersXML() {
+        Resource resource = storageService.loadAsResourceFromDB("usersList", null);
+
+        if (resource != null) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_XML)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline") // inline = display as response body
+                    .body(resource);
+        } else
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
