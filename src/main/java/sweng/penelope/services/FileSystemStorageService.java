@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.security.PrivateKey;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
@@ -29,10 +30,12 @@ import sweng.penelope.entities.Bird;
 import sweng.penelope.entities.Campus;
 import sweng.penelope.repositories.BirdRepository;
 import sweng.penelope.repositories.CampusRepository;
+import sweng.penelope.repositories.DataManagerRepository;
 import sweng.penelope.xml.BirdXML;
 import sweng.penelope.xml.CampusXML;
 import sweng.penelope.xml.CampusesListXML;
 import sweng.penelope.xml.CommonXML;
+import sweng.penelope.xml.UsersListXML;
 import sweng.penelope.xml.XMLConfiguration;
 
 /**
@@ -53,6 +56,8 @@ public class FileSystemStorageService implements StorageService {
     private BirdRepository birdRepository;
     @Autowired
     private CampusRepository campusRepository;
+    @Autowired
+    private DataManagerRepository dataManagerRepository;
 
     private void createDir(Path path) throws IOException {
         if (!Files.exists(path))
@@ -179,6 +184,24 @@ public class FileSystemStorageService implements StorageService {
         return campusesListXML;
     }
 
+    private UsersListXML getUsersList() {
+        XMLConfiguration xmlConfiguration = new XMLConfiguration("The Penelope Team", "Users list", -1L);
+        UsersListXML usersListXML = new UsersListXML(xmlConfiguration);
+
+        dataManagerRepository.findAll().forEach(dataManager -> {
+            Set<Campus> campuses;
+
+            if (dataManager.isSysadmin())
+                campuses = null;
+            else
+                campuses = dataManager.getCampuses();
+
+            usersListXML.addUser(dataManager.getUsername(), campuses);
+        });
+
+        return usersListXML;
+    }
+
     @Override
     public Resource loadAsResourceFromDB(String type, Long id) {
         CommonXML xml = null;
@@ -186,6 +209,8 @@ public class FileSystemStorageService implements StorageService {
             xml = getCampus(id);
         else if (type.equals("bird"))
             xml = getBird(id);
+        else if (type.equals("usersList"))
+            xml = getUsersList();
         else
             xml = getCampusesList();
 
