@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -23,11 +24,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
             UserAuthenticationManager userAuthenticationManager, KeyPair serverKeyPair) throws Exception {
-        // Instantiate filter
+        // Instantiate filters
         UserFilter userFilter = new UserFilter(userAuthenticationManager, serverKeyPair, credentialsHeader);
+        ExceptionFilter exceptionFilter = new ExceptionFilter();
+
         httpSecurity.csrf().disable()
                 .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                         .antMatchers(REQUEST_MATCHER.getPattern()).authenticated())
+                .addFilterBefore(exceptionFilter, CorsFilter.class)
                 .addFilter(userFilter)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
