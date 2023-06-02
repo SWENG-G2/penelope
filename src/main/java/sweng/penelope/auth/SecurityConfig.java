@@ -28,7 +28,7 @@ public class SecurityConfig {
         UserFilter userFilter = new UserFilter(userAuthenticationManager, serverKeyPair, credentialsHeader);
         ExceptionFilter exceptionFilter = new ExceptionFilter();
 
-        httpSecurity.csrf().disable()
+        httpSecurity.csrf().disable().requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                         .antMatchers(REQUEST_MATCHER.getPattern()).authenticated())
                 .addFilterBefore(exceptionFilter, CorsFilter.class)
