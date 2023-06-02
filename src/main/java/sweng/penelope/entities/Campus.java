@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.PreRemove;
 
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -46,6 +47,15 @@ public class Campus {
     @ManyToMany(mappedBy = "campuses")
     private Set<DataManager> dataManagers = new HashSet<>();
 
+    @PreRemove
+    private void removeAssociatedUsers() {
+        for (DataManager dataManager : dataManagers) {
+            Set<Campus> campuses = dataManager.getCampuses();
+            campuses.remove(this);
+            dataManager.setCampuses(campuses);
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Campus))
@@ -64,7 +74,7 @@ public class Campus {
     public int hashCode() {
         if (id != null)
             return id.hashCode();
-    
+
         return super.hashCode();
     }
 }
